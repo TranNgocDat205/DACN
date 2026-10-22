@@ -1,0 +1,156 @@
+/* Thanh điều hướng: luôn nền tối ở cả giao diện sáng và tối, đọc token --shell* từ style.css.
+   Selector giữ tiền tố #root để thắng các quy tắc .sidebar cũ. */
+#root .app-shell .sidebar.dp-side {
+  --dp-bg: var(--shell);
+  --dp-text: var(--shell-ink);
+  --dp-muted: var(--shell-muted);
+  --dp-divider: var(--shell-line);
+  --dp-hover: var(--shell-hover);
+  --dp-active: color-mix(in srgb, var(--brand) 20%, transparent);
+  --dp-accent: #9db0ff;
+  --dp-w: 244px;
+  width: var(--dp-w); height: 100vh; height: 100dvh; min-height: 0; padding: 0;
+  display: flex; flex-direction: column; overflow: hidden;
+  font-family: var(--font);
+  background: var(--dp-bg); color: var(--dp-text);
+  border-right: 1px solid var(--dp-divider);
+  transition: width 240ms var(--ease), transform 240ms var(--ease);
+}
+
+#root .app-shell .sidebar.dp-side.sidebar-collapsed { --dp-w: 72px; }
+#root .app-shell .sidebar.dp-side + .main-panel { margin-left: var(--dp-w, 244px); width: calc(100% - 244px); min-width: 0; }
+#root .app-shell .sidebar.dp-side.sidebar-collapsed + .main-panel { margin-left: 72px; width: calc(100% - 72px); }
+
+#root .app-shell .dp-side * { box-sizing: border-box; }
+#root .app-shell .dp-side button { cursor: pointer; }
+#root .app-shell .dp-side :is(button):focus-visible { outline: 2px solid var(--dp-accent); outline-offset: -2px; }
+
+/* Thương hiệu */
+#root .app-shell .dp-side-brand {
+  flex: 0 0 auto; min-height: var(--topbar-h); display: flex; align-items: center; gap: 10px;
+  padding: 0 16px; border-bottom: 1px solid var(--dp-divider);
+}
+#root .app-shell .dp-side-logo {
+  display: grid; place-items: center; flex: 0 0 36px; height: 36px; border-radius: 10px; color: #fff;
+  background: linear-gradient(135deg, var(--brand), var(--signal));
+}
+#root .app-shell .dp-side-wordmark { flex: 1; min-width: 0; white-space: nowrap; font: 700 17px/1.1 var(--font); letter-spacing: -.02em; color: var(--dp-text); }
+#root .app-shell .dp-side-wordmark b { color: var(--signal); font-weight: 700; }
+#root .app-shell .dp-side-wordmark small { display: block; margin-top: 4px; font: 500 11px/1 var(--font); letter-spacing: 0; color: var(--dp-muted); text-transform: lowercase; }
+#root .app-shell .dp-side-wordmark small::first-letter { text-transform: uppercase; }
+#root .app-shell .dp-side-mobile-close { display: none; border: 0; border-radius: var(--r-md); padding: 8px; background: transparent; color: var(--dp-muted); }
+
+/* Dự án đang chọn */
+#root .app-shell .dp-side-project-wrap { flex: 0 0 auto; padding: 14px 12px; border-bottom: 1px solid var(--dp-divider); }
+#root .app-shell .dp-side-caption {
+  display: block; margin: 0 4px 8px; font-size: 12px; font-weight: 500; letter-spacing: 0; color: var(--dp-muted);
+  text-transform: lowercase;
+}
+#root .app-shell .dp-side-caption::first-letter { text-transform: uppercase; }
+#root .app-shell .dp-side-project {
+  display: flex; align-items: center; gap: 10px; width: 100%; height: 42px; padding: 0 12px; text-align: left;
+  border: 1px solid var(--dp-divider); border-radius: var(--r-md); background: var(--dp-hover); color: var(--dp-text);
+  transition: border-color .15s;
+}
+#root .app-shell .dp-side-project:hover { border-color: var(--dp-accent); }
+#root .app-shell .dp-side-project > span { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 13px; font-weight: 600; }
+#root .app-shell .dp-side-project > svg { flex: none; }
+
+/* Điều hướng */
+#root .app-shell .dp-side-nav {
+  flex: 1 1 auto; min-height: 0; display: block; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain;
+  padding: 12px 10px 8px; scrollbar-width: thin; scrollbar-color: var(--dp-divider) transparent;
+}
+#root .app-shell .dp-side-group { margin: 0 0 6px; }
+#root .app-shell .dp-side-group-toggle {
+  display: flex; align-items: center; gap: 9px; width: 100%; min-height: 36px; padding: 6px 10px;
+  border: 0; border-radius: var(--r-md); background: transparent; color: var(--dp-muted);
+  font-size: 12px; font-weight: 600; letter-spacing: 0; text-align: left;
+}
+/* Tên nhóm được viết hoa sẵn trong JSX: đưa về chữ thường, hoa chữ đầu */
+#root .app-shell .dp-side-group-toggle > span { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-transform: lowercase; }
+#root .app-shell .dp-side-group-toggle > span::first-letter { text-transform: uppercase; }
+#root .app-shell .dp-side-group-toggle > svg:last-child { transition: transform 180ms ease; }
+#root .app-shell .dp-side-group-toggle > svg:last-child.is-open { transform: rotate(180deg); }
+#root .app-shell .dp-side-group-toggle:hover,
+#root .app-shell .dp-side-group-toggle.has-active { color: var(--dp-text); }
+#root .app-shell .dp-side-group-items[hidden] { display: none !important; }
+#root .app-shell .dp-side-group-items { display: flex; flex-direction: column; gap: 2px; margin-top: 2px; }
+
+#root .app-shell .dp-side-link {
+  position: relative; display: flex; align-items: center; gap: 11px; width: 100%; min-height: 38px; padding: 7px 10px;
+  border: 0; border-radius: var(--r-md); background: transparent; color: var(--dp-muted); text-align: left;
+  font-size: 13px; font-weight: 500; transition: background-color .15s, color .15s;
+}
+#root .app-shell .dp-side-link:hover { background: var(--dp-hover); color: var(--dp-text); }
+#root .app-shell .dp-side-link.active { background: var(--dp-active); color: #fff; font-weight: 600; }
+#root .app-shell .dp-side-link.active > svg { color: var(--dp-accent); }
+#root .app-shell .dp-side-link > svg { flex: none; }
+#root .app-shell .dp-side-link-label { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#root .app-shell .dp-side-count {
+  display: grid; place-items: center; min-width: 22px; height: 20px; padding: 0 6px; border-radius: 99px;
+  background: var(--dp-hover); color: var(--dp-text); font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums;
+}
+#root .app-shell .dp-side-link.active .dp-side-count { background: color-mix(in srgb, var(--brand) 40%, transparent); color: #fff; }
+
+/* Chân sidebar */
+#root .app-shell .dp-side-footer { flex: 0 0 auto; padding: 12px; border-top: 1px solid var(--dp-divider); background: var(--dp-bg); }
+#root .app-shell .dp-side-ai {
+  position: relative; display: flex; align-items: center; gap: 9px; width: 100%; min-height: 40px; padding: 0 12px; overflow: hidden;
+  border: 1px solid var(--dp-divider); border-radius: var(--r-md); background: var(--dp-hover); color: var(--dp-text);
+  font-size: 13px; font-weight: 600;
+}
+/* Vạch tín hiệu: dấu hiệu nhận biết nơi AI hoạt động */
+#root .app-shell .dp-side-ai::before { content: ''; position: absolute; inset: 0 0 auto 0; height: 2px; background: var(--signal-line); }
+#root .app-shell .dp-side-ai:hover { border-color: var(--dp-accent); }
+#root .app-shell .dp-side-ai svg:first-child { flex: none; color: var(--signal); }
+#root .app-shell .dp-side-ai span { flex: 1; text-align: left; }
+#root .app-shell .dp-side-footer-tools { display: flex; align-items: center; gap: 6px; margin-top: 8px; }
+#root .app-shell .dp-side-tool {
+  display: flex; align-items: center; justify-content: center; gap: 7px; flex: 1; min-height: 34px;
+  border: 0; border-radius: var(--r-md); background: transparent; color: var(--dp-muted); font-size: 12px; font-weight: 500;
+}
+#root .app-shell .dp-side-tool:hover { background: var(--dp-hover); color: var(--dp-text); }
+#root .app-shell .dp-side-logout:hover { color: #ff8e9c; }
+
+/* Thu gọn */
+#root .app-shell .sidebar.dp-side.sidebar-collapsed .dp-side-brand { justify-content: center; padding: 0; }
+#root .app-shell .sidebar.dp-side.sidebar-collapsed .dp-side-project-wrap { padding: 12px 9px; }
+#root .app-shell .sidebar.dp-side.sidebar-collapsed .dp-side-project { justify-content: center; padding: 0; }
+#root .app-shell .sidebar.dp-side.sidebar-collapsed .dp-side-nav { padding: 10px 9px; }
+#root .app-shell .sidebar.dp-side.sidebar-collapsed .dp-side-group-toggle { justify-content: center; height: 38px; padding: 0; }
+#root .app-shell .sidebar.dp-side.sidebar-collapsed .dp-side-group-toggle > svg { width: 18px; height: 18px; }
+#root .app-shell .sidebar.dp-side.sidebar-collapsed .dp-side-ai { justify-content: center; padding: 0; }
+#root .app-shell .sidebar.dp-side.sidebar-collapsed .dp-side-footer { padding: 10px 9px; }
+#root .app-shell .sidebar.dp-side.sidebar-collapsed .dp-side-footer-tools { flex-direction: column; }
+#root .app-shell .sidebar.dp-side.sidebar-collapsed .dp-side-tool { width: 100%; height: 34px; }
+#root .app-shell .dp-side-backdrop { display: none; }
+
+@media (max-height: 640px) {
+  #root .app-shell .dp-side-project-wrap { padding-top: 8px; padding-bottom: 8px; }
+  #root .app-shell .dp-side-nav { padding-top: 6px; }
+  #root .app-shell .dp-side-footer { padding-top: 8px; padding-bottom: 8px; }
+}
+
+/* Điện thoại / máy tính bảng: sidebar trượt ra từ mép trái */
+@media (max-width: 980px) {
+  #root .app-shell .sidebar.dp-side { width: min(284px, 86vw); transform: translateX(-105%); z-index: 90; box-shadow: var(--shadow-pop); }
+  #root .app-shell .sidebar.dp-side.sidebar-collapsed { width: min(284px, 86vw); }
+  #root .app-shell .sidebar.dp-side.dp-side-mobile-open { transform: translateX(0); }
+  #root .app-shell .sidebar.dp-side + .main-panel,
+  #root .app-shell .sidebar.dp-side.sidebar-collapsed + .main-panel { margin-left: 0; width: 100%; min-width: 0; }
+  #root .app-shell .sidebar.dp-side .dp-side-wordmark,
+  #root .app-shell .sidebar.dp-side.sidebar-collapsed .dp-side-wordmark { display: block; }
+  #root .app-shell .sidebar.dp-side .dp-side-mobile-close { display: grid; place-items: center; margin-left: auto; }
+  #root .app-shell .dp-side-backdrop { display: block; position: fixed; inset: 0; z-index: 80; border: 0; background: rgba(8, 14, 28, .55); cursor: pointer; }
+  #root .app-shell .mobile-menu { display: grid !important; }
+  #root .app-shell .sidebar.dp-side .dp-side-group-toggle { justify-content: flex-start; padding: 6px 10px; }
+  #root .app-shell .sidebar.dp-side .dp-side-project { justify-content: flex-start; padding: 0 12px; }
+  #root .app-shell .sidebar.dp-side .dp-side-footer-tools { flex-direction: row; }
+  #root .app-shell .sidebar.dp-side .dp-side-desktop-collapse { display: none; }
+  #root .app-shell .sidebar.dp-side .dp-side-footer { padding: 12px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #root .app-shell .sidebar.dp-side *, #root .app-shell .sidebar.dp-side { transition-duration: .001ms !important; animation-duration: .001ms !important; }
+}

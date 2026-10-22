@@ -1,0 +1,22 @@
+DevPilot AI - ban va loi Spring Boot -> FastAPI (HTTP/1.1)
+
+1. Dung Backend bang Ctrl+C trong Terminal VS Code.
+2. Giai nen ZIP vao thu muc goc du an AI_Software_Development_Assistant, chon Replace.
+   File duoc thay: backend/src/main/java/com/dacn/assistant/service/AiClient.java
+   Khong thay doi .env, mat khau SQL, key FastRouter, database hay Frontend.
+3. Kiem tra backend/.env:
+   AI_SERVICE_URL=http://127.0.0.1:8000
+   AI_INTERNAL_KEY phai trung voi ai-service/.env.
+4. Chay AI Service truoc: powershell -ExecutionPolicy Bypass -File .\scripts\Start-AI.ps1
+5. Chay Backend: powershell -ExecutionPolicy Bypass -File .\scripts\Start-Backend.ps1
+6. Chay Frontend: powershell -ExecutionPolicy Bypass -File .\scripts\Start-Frontend.ps1
+7. Mo http://localhost:5173, bam Phan tich yeu cau bang AI.
+
+Neu van loi:
+- Chay .\scripts\Test-FastRouter.ps1 (co the ton phi API)
+- Lay log cua terminal AI Service sau khi bam nut; khong gui API key.
+- Khi /internal/check hoat dong nhung POST loi, kiem tra thong bao tu FastAPI.
+
+Thay doi chinh: buoc Java Spring RestClient dung SimpleClientHttpRequestFactory
+su dung HTTP/1.1 thay vi chon HTTP client mac dinh. Day la ban va co co so
+ky thuat, chua duoc xac minh end-to-end voi FastRouter tren may cua ban.

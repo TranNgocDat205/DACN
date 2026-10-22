@@ -1,0 +1,41 @@
+# Local environment and credentials
+.env
+.env.*
+**/.env
+**/.env.*
+!**/.env.example
+
+# Python and RAG
+**/.venv/
+**/venv/
+**/__pycache__/
+**/*.py[cod]
+**/.pytest_cache/
+ai-service/data/
+
+# Frontend
+**/node_modules/
+**/dist/
+**/coverage/
+
+# Java
+**/target/
+**/.mvn/wrapper/maven-wrapper.jar
+
+# IDE and OS
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Logs, backups, secrets, build archives
+*.log
+*.bak
+*.tmp
+*.orig
+*.zip
+*.pem
+*.key
+*.p12
+*.pfx

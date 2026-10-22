@@ -1,0 +1,26 @@
+server:
+  port: ${PORT:8080}
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:sqlserver://localhost:1433;databaseName=AI_Software_Assistant;encrypt=true;trustServerCertificate=true;sendStringParametersAsUnicode=true}
+    username: ${DB_USER:ai_app}
+    password: ${DB_PASSWORD:}
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    hikari:
+      connection-timeout: 15000
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: ${DB_DDL_AUTO:update}
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.SQLServerDialect
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 11MB
+app:
+  jwt-secret: ${JWT_SECRET:CHANGE_ME_TO_A_RANDOM_SECRET_AT_LEAST_32_CHARACTERS}
+  cors-origin: ${CORS_ORIGIN:http://localhost:5173}
+  ai-url: ${AI_SERVICE_URL:http://localhost:8000}
+  ai-internal-key: ${AI_INTERNAL_KEY:CHANGE_ME_INTERNAL_KEY}

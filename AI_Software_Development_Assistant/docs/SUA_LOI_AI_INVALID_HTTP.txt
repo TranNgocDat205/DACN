@@ -1,0 +1,24 @@
+HUONG DAN SUA LOI INVALID HTTP REQUEST RECEIVED
+
+Nguyen nhan kha di: Java Spring Boot dung HTTP client mac dinh, Uvicorn/FastAPI
+khong chap nhan kieu giao tiep. Script Test-FastRouter.ps1 thanh cong khong
+chung minh Java->FastAPI duoc.
+
+CACH NHANH (CHI THAY MOT FILE)
+1. Sao luu ma nguon du an cu.
+2. Copy file AiClient.java vao:
+   backend/src/main/java/com/dacn/assistant/service/AiClient.java
+3. Trong backend/.env: AI_SERVICE_URL=http://127.0.0.1:8000
+4. Giu nguyen DB_PASSWORD, AI_API_KEY, AI_INTERNAL_KEY.
+5. Trong terminal backend: Ctrl+C, sau do chay
+   powershell -ExecutionPolicy Bypass -File .\scripts\Start-Backend.ps1
+6. Cho xuat hien Started AssistantApplication. Nhan Ctrl+Shift+R tren browser.
+7. Thu lai Phan tich yeu cau bang AI.
+
+NEU VAN LOI:
+* Mo Developer Tools -> Network -> request POST .../analyze -> Status + Response.
+* Mo terminal FastAPI de xem log cua request ngay khi bam nut.
+* Khong chia se Authorization token, DB password hoac AI key.
+
+Luu y: Day la ban sua ma nguon theo ket qua phan tich, can kiem thu tren may
+Windows voi SQL Server va FastRouter that. Khong tao lai database.

@@ -1,0 +1,17 @@
+# Optional: use this ONLY if SQL Server is not already installed on Windows.
+# Set MSSQL_SA_PASSWORD in the root .env; never commit that file.
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: dacn-sqlserver
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: "Developer"
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD:?Set MSSQL_SA_PASSWORD in .env}
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    restart: unless-stopped
+volumes:
+  sqlserver_data:

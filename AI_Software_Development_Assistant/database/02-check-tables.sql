@@ -1,0 +1,10 @@
+USE AI_Software_Assistant;
+GO
+SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES
+WHERE TABLE_TYPE='BASE TABLE'
+ORDER BY TABLE_NAME;
+GO
+SELECT COUNT(*) AS ProjectCount FROM dbo.projects;
+SELECT COUNT(*) AS RequirementCount FROM dbo.requirements;
+SELECT COUNT(*) AS TaskCount FROM dbo.tasks;
+GO
