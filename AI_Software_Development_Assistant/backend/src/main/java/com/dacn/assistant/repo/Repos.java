@@ -5,6 +5,11 @@ import java.util.*;
 public final class Repos {
   private Repos() {}
   public interface Users extends JpaRepository<User,Long> { Optional<User> findByEmail(String email); long countByRole(String role); }
+  public interface PendingRegistrations extends JpaRepository<PendingRegistration,Long> {
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @org.springframework.data.jpa.repository.Query("select p from PendingRegistration p where p.email = :email")
+    Optional<PendingRegistration> lockByEmail(@org.springframework.data.repository.query.Param("email") String email);
+  }
   public interface Projects extends JpaRepository<Project,Long> { List<Project> findByOwnerId(Long id); }
   public interface Members extends JpaRepository<Member,Long> {
     Optional<Member> findByProjectIdAndUserId(Long projectId,Long userId);

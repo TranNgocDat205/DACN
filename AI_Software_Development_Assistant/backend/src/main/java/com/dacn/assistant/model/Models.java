@@ -19,6 +19,18 @@ public final class Models {
     // Account-level role, distinct from OWNER/MEMBER within a project.
     @Column(name="system_role", length=16) public String role="USER";
   }
+  // Pending accounts are isolated from app_users until the email OTP is verified.
+  @Entity(name="PendingRegistration") @Table(name="pending_registrations", uniqueConstraints=@UniqueConstraint(columnNames="email"))
+  public static class PendingRegistration extends Base {
+    @Column(nullable=false, length=200) public String email;
+    @Column(nullable=false, length=120, columnDefinition="nvarchar(120)") public String name;
+    @JsonIgnore @Column(nullable=false, length=100) public String passwordHash;
+    @JsonIgnore @Column(nullable=false, length=100) public String otpHash;
+    @Column(nullable=false) public Instant expiresAt;
+    @Column(nullable=false) public Instant lastSentAt;
+    @Column(nullable=false) public int attempts = 0;
+    @Column(nullable=false) public int sendCount = 1;
+  }
   @Entity @Table(name="projects")
   public static class Project extends Base {
     @Column(nullable=false, length=160, columnDefinition="nvarchar(160)") public String name;

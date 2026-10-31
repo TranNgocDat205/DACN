@@ -27,6 +27,12 @@ DATA_DIR = Path(os.environ.get("RAG_DATA_DIR", str(Path(__file__).parent / "data
 API_BASE = os.environ.get("AI_BASE_URL", "https://api.openai.com/v1").strip().rstrip("/")
 API_KEY = os.environ.get("AI_API_KEY", "").strip()
 MODEL = os.environ.get("AI_MODEL", "gpt-4o-mini")
+# Gemini is an optional AI provider. Keep all credentials server-side in .env.
+# Using the Google OpenAI-compatible API avoids changes to every AI endpoint.
+AI_PROVIDER = os.environ.get("AI_PROVIDER", "legacy").strip().lower()
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "").strip()
+GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-3.5-flash-lite").strip()
+GEMINI_BASE = "https://generativelanguage.googleapis.com/v1beta/openai"
 FORCE_JSON_FORMAT = os.environ.get("AI_FORCE_JSON_RESPONSE_FORMAT", "false").lower() in ("1", "true", "yes")
 EMBED_MODEL = os.environ.get("AI_EMBEDDING_MODEL", "")
 INTERNAL_KEY = os.environ.get("AI_INTERNAL_KEY", "CHANGE_ME_INTERNAL_KEY").strip()
@@ -59,13 +65,36 @@ def internal_check():
     """Cheap auth-only connectivity probe; does not invoke FastRouter."""
     return {"status":"ok", "service":"ai", "authenticated":True}
 
+def active_llm() -> tuple[str, str, str, str]:
+    """Return (label, base, key, model) for the selected chat provider.
+
+    This function is called per request, so tests can verify provider routing
+    without contacting a paid API. Unknown providers fail rather than silently
+    sending project data to an unintended provider.
+    """
+    if AI_PROVIDER in ("gemini", "google"):
+        return "Gemini", GEMINI_BASE, GEMINI_API_KEY, GEMINI_MODEL
+    if AI_PROVIDER in ("", "legacy", "fastrouter", "openai"):
+        label = "FastRouter.AI" if "fastrouter.ai" in API_BASE else "OpenAI-compatible"
+        return label, API_BASE, API_KEY, MODEL
+    raise HTTPException(status_code=503, detail="Unsupported AI_PROVIDER. Use gemini or legacy")
+
+
 @app.get("/health")
 def health():
-    # Configuration status only; never expose the key or imply Tavily connectivity.
-    provider = ('tavily' if os.environ.get('TAVILY_API_KEY', '').strip()
-                else 'brave' if os.environ.get('BRAVE_SEARCH_API_KEY', '').strip()
-                else 'catalog_only')
-    return {"web_search_provider":provider,"web_search_configured":provider!='catalog_only',"status":"ok","llm_configured":bool(API_KEY),"embeddings_configured":bool(API_KEY and EMBED_MODEL),"model":MODEL,"provider":("FastRouter.AI" if "fastrouter.ai" in API_BASE else "OpenAI-compatible"),"note":"Configured only; upstream API availability requires a test request"}
+    # Configuration-only probe: no call to an upstream billable AI service.
+    web_provider = ('tavily' if os.environ.get('TAVILY_API_KEY', '').strip()
+                    else 'brave' if os.environ.get('BRAVE_SEARCH_API_KEY', '').strip()
+                    else 'catalog_only')
+    label, _base, key, model = active_llm()
+    return {"web_search_provider":web_provider,
+            "web_search_configured":web_provider!='catalog_only',
+            "status":"ok",
+            "llm_configured":bool(key),
+            "embeddings_configured":bool(API_KEY and EMBED_MODEL),
+            "model":model,
+            "provider":label,
+            "note":"Configuration only; upstream model access needs a separate test request"}
 
 def parse_llm_json(text: str) -> dict:
     text = text.strip().replace("```json", "```")
@@ -80,31 +109,32 @@ def parse_llm_json(text: str) -> dict:
     return obj
 
 async def call_chat(system: str, content: str, json_mode: bool = False) -> str | None:
-    """OpenAI-compatible chat API (including https://api.fastrouter.ai/api/v1).
+    """Call the selected OpenAI-compatible AI endpoint (Gemini or legacy).
 
-    JSON response_format is opt-in because gateway-routed models may not support it.
+    JSON response_format remains optional because some hosted models do not
+    support it. API credentials never reach React or Spring Boot logs.
     """
-    if not API_KEY:
+    provider_name, base, key, model = active_llm()
+    if not key:
+        # Keep existing heuristic/demo behavior when the selected model has no key.
         return None
     if json_mode:
         system += "\nOutput a single valid JSON object only. No Markdown code fences."
-    payload = {"model": MODEL, "messages": [{"role": "system", "content": system},
-                                        {"role": "user", "content": content}], "temperature": 0.2}
+    payload = {"model": model, "messages": [{"role": "system", "content": system},
+                                         {"role": "user", "content": content}], "temperature": 0.2}
     if json_mode and FORCE_JSON_FORMAT:
         payload["response_format"] = {"type": "json_object"}
     try:
-        # Separate connection and response timeouts. Do not retry automatically:
-        # a retry could consume extra paid LLM API requests.
         timeout = httpx.Timeout(connect=10.0, read=LLM_READ_TIMEOUT_SECONDS,
                                 write=30.0, pool=10.0)
         async with httpx.AsyncClient(timeout=timeout) as client:
-            resp = await client.post(f"{API_BASE}/chat/completions",
-                                     headers={"Authorization": f"Bearer {API_KEY}",
+            resp = await client.post(f"{base}/chat/completions",
+                                     headers={"Authorization": f"Bearer {key}",
                                               "Accept": "application/json"}, json=payload)
             if resp.status_code >= 400:
-                # Report only upstream status and a short error category; never echo credentials.
+                # Do not include upstream response body, URL or credentials in errors.
                 raise HTTPException(status_code=502,
-                                    detail=f"FastRouter/LLM HTTP {resp.status_code}. Check API key, model, quota and base URL")
+                                    detail=f"{provider_name} / LLM HTTP {resp.status_code}. Check selected model, key, API access and quota")
             answer = resp.json()["choices"][0]["message"]["content"]
             if not isinstance(answer, str) or not answer.strip():
                 raise ValueError("Empty LLM response")
@@ -114,8 +144,7 @@ async def call_chat(system: str, content: str, json_mode: bool = False) -> str |
     except httpx.TimeoutException as exc:
         raise HTTPException(status_code=504, detail=(
             f"LLM provider timed out ({type(exc).__name__}; "
-            f"read limit {LLM_READ_TIMEOUT_SECONDS:g}s). "
-            "Retry once, or choose a faster supported FastRouter model.")) from exc
+            f"read limit {LLM_READ_TIMEOUT_SECONDS:g}s). Retry or choose a faster model.")) from exc
     except httpx.RequestError as exc:
         raise HTTPException(status_code=502, detail=f"LLM network error: {type(exc).__name__}") from exc
     except (KeyError, IndexError, ValueError, TypeError) as exc:

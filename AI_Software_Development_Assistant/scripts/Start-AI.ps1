@@ -22,6 +22,11 @@ if ($listener) {
     throw "Port 8000 is already in use (PID $($listener.OwningProcess)). Stop the old AI Service before starting this version."
 }
 Write-Host 'Starting DevPilot AI Service: http://127.0.0.1:8000' -ForegroundColor Cyan
-Write-Host 'FastRouter key loaded from ai-service/.env (value hidden).' -ForegroundColor Cyan
+$selectedProvider = $env:AI_PROVIDER
+if ($selectedProvider -in @('gemini','google')) {
+    Write-Host ('Gemini selected. Key configured: ' + [bool](-not [string]::IsNullOrWhiteSpace($env:GEMINI_API_KEY))) -ForegroundColor Cyan
+} else {
+    Write-Host ('Legacy AI provider selected. Key configured: ' + [bool](-not [string]::IsNullOrWhiteSpace($env:AI_API_KEY))) -ForegroundColor Cyan
+}
 & $python -m uvicorn main:app --host 127.0.0.1 --port 8000
 if ($LASTEXITCODE -ne 0) { throw 'AI Service exited with an error.' }

@@ -1,0 +1,347 @@
+/* DevPilot / Editorial Studio — designed interface layer.
+   Presentation only: the existing backend, project state, and AI actions remain intact. */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
+
+#root .app-shell.dp-studio {
+  --studio-paper:#f7f6f2;
+  --studio-white:#fffefa;
+  --studio-ink:#172335;
+  --studio-muted:#778291;
+  --studio-hairline:#e7e8e1;
+  --studio-blue:#3d55e8;
+  --studio-lime:#d5f678;
+  --studio-orange:#f6b58f;
+  --studio-mint:#64c7ac;
+  --studio-font:'Space Grotesk','DM Sans','Segoe UI',sans-serif;
+  --studio-mono:'IBM Plex Mono',Consolas,monospace;
+  background:var(--studio-paper);
+  color:var(--studio-ink);
+}
+#root .app-shell.dp-studio .main-panel {background:var(--studio-paper);min-width:0}
+#root .app-shell.dp-studio .main-content {max-width:1720px;padding:33px clamp(22px,3.05vw,54px) 58px;margin:0 auto}
+#root .app-shell.dp-studio h1,#root .app-shell.dp-studio h2,#root .app-shell.dp-studio h3,#root .app-shell.dp-studio h4 {font-family:var(--studio-font);letter-spacing:-.045em}
+#root .app-shell.dp-studio button {transition:transform 180ms ease,background-color 180ms ease,border-color 180ms ease,color 180ms ease,box-shadow 180ms ease}
+#root .app-shell.dp-studio :is(button,input,textarea,select,a):focus-visible {outline:3px solid var(--studio-blue);outline-offset:3px}
+#root .app-shell.dp-studio .topbar {height:72px;position:sticky;top:0;z-index:15;padding:0 clamp(22px,3.05vw,54px);background:rgba(247,246,242,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--studio-hairline)}
+#root .app-shell.dp-studio .top-left {gap:13px;min-width:0}
+#root .app-shell.dp-studio .top-left b {font-size:13px;font-weight:700;color:var(--studio-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#root .app-shell.dp-studio .topbar-workspace-label {color:#728094;font:600 10px var(--studio-mono);letter-spacing:.11em;white-space:nowrap}
+#root .app-shell.dp-studio .slash {color:#adb7bd;font:500 14px var(--studio-mono)}
+#root .app-shell.dp-studio .top-right {gap:12px;min-width:0}
+#root .app-shell.dp-studio .studio-top-action {display:inline-flex;align-items:center;gap:8px;background:var(--studio-white);border:1px solid var(--studio-hairline);border-radius:8px;padding:10px 12px;font-size:11px;font-weight:750;color:var(--studio-ink)}
+#root .app-shell.dp-studio .studio-top-action:hover{border-color:var(--studio-blue);color:var(--studio-blue)}
+#root .app-shell.dp-studio .avatar {height:34px;width:34px;border-radius:10px;background:var(--studio-blue);font:700 15px var(--studio-font)}
+#root .app-shell.dp-studio .username {font-size:11px;font-weight:650;color:var(--studio-ink);max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#root .app-shell.dp-studio .online-dot {width:7px;height:7px;background:#23a37f;box-shadow:0 0 0 3px #d9eee5}
+#root .app-shell.dp-studio .connected {font-size:10px;color:#667c73;font-weight:700;margin-right:0}
+/* Night/day control already has full functionality; only reduce its outsized topbar footprint. */
+#root .app-shell.dp-studio .topbar .u021-mount {--u021-scale:.31!important;margin:0 -8px}
+/* Navigation: typographic, product-like, quietly distinctive. */
+#root .app-shell.dp-studio .sidebar.dp-side {--dp-bg:#101d2c;--dp-text:#f5f5f0;--dp-muted:#8694a4;--dp-divider:rgba(255,255,255,.095);--dp-hover:#1c3042;--dp-active:#233a50;--dp-brand:#d8f679;width:254px;background:var(--dp-bg);border-right:1px solid #16283a}
+#root .app-shell.dp-studio .sidebar.dp-side+.main-panel{margin-left:254px;width:calc(100% - 254px)}
+#root .app-shell.dp-studio .sidebar.dp-side.sidebar-collapsed{width:74px}
+#root .app-shell.dp-studio .sidebar.dp-side.sidebar-collapsed+.main-panel{margin-left:74px;width:calc(100% - 74px)}
+#root .app-shell.dp-studio .dp-side-brand {min-height:83px;padding:20px 20px 17px}
+#root .app-shell.dp-studio .dp-side-logo {width:41px;height:41px;flex-basis:41px;border-radius:9px;background:var(--studio-lime);color:#152338;box-shadow:none;transform:rotate(-4deg)}
+#root .app-shell.dp-studio .studio-logo-glyph {font:700 28px/1 var(--studio-font);letter-spacing:-.12em;transform:rotate(4deg) translateX(-2px)}
+#root .app-shell.dp-studio .studio-logo-glyph span {font-size:28px;color:var(--studio-blue)}
+#root .app-shell.dp-studio .dp-side-wordmark {font:700 19px/1 var(--studio-font);letter-spacing:-.85px}
+#root .app-shell.dp-studio .dp-side-wordmark b {color:var(--studio-lime)}
+#root .app-shell.dp-studio .dp-side-wordmark small {font:500 8px/1.5 var(--studio-mono);letter-spacing:1.45px;color:#8798a8;margin-top:6px}
+#root .app-shell.dp-studio .dp-side-project-wrap {padding:21px 15px 20px}
+#root .app-shell.dp-studio .dp-side-caption {font:600 9px var(--studio-mono);letter-spacing:.1em;color:#8193a5;margin:0 3px 12px}
+#root .app-shell.dp-studio .dp-side-project {height:53px;border-radius:8px;background:#1a2b3e;border-color:#34465a;padding:0 13px;gap:11px}
+#root .app-shell.dp-studio .dp-side-project>svg:first-child {color:var(--studio-lime)}
+#root .app-shell.dp-studio .dp-side-project>span {font-size:12px;font-weight:650}
+#root .app-shell.dp-studio .dp-side-nav {padding:17px 12px 10px}
+#root .app-shell.dp-studio .dp-side-group-toggle {font:600 9px var(--studio-mono);letter-spacing:.03em;padding:9px 11px;min-height:39px;color:#8595a7}
+#root .app-shell.dp-studio .dp-side-group-toggle.has-active {color:#d7e8e2}
+#root .app-shell.dp-studio .dp-side-group-items {gap:4px}
+#root .app-shell.dp-studio .dp-side-link {border-radius:7px;border:1px solid transparent;padding:10px 11px;min-height:42px;font-size:12px;font-weight:550;gap:11px;letter-spacing:-.008em;color:#98a7b7}
+#root .app-shell.dp-studio .dp-side-link:hover {background:#1c3147;color:#fff}
+#root .app-shell.dp-studio .dp-side-link.active {border-color:#3c4f61;background:#243747;color:#e4f5ae;box-shadow:inset 3px 0 var(--studio-lime)}
+#root .app-shell.dp-studio .dp-side-link.active>svg {color:var(--studio-lime)}
+#root .app-shell.dp-studio .dp-side-count {font:700 11px var(--studio-mono);border-radius:5px;background:#3a4b57;color:#d6f475}
+#root .app-shell.dp-studio .studio-sidebar-note {margin:5px 15px 15px;padding:16px 13px;display:flex;gap:12px;align-items:flex-start;background:#1a2e3b;border:1px solid #2a404b;border-radius:9px}
+#root .app-shell.dp-studio .studio-note-sigil {color:var(--studio-lime);background:#2a4144;padding:8px;border-radius:8px}
+#root .app-shell.dp-studio .studio-sidebar-note small {font:600 8px var(--studio-mono);color:#a4bdba;letter-spacing:.05em}
+#root .app-shell.dp-studio .studio-sidebar-note strong {display:block;margin-top:7px;font:500 12px/1.55 var(--studio-font);letter-spacing:-.01em;color:#f0f3e7}
+#root .app-shell.dp-studio .dp-side-footer {padding:12px 15px 16px}
+#root .app-shell.dp-studio .dp-side-ai {height:48px;border:0;border-radius:8px;padding:0 14px;background:var(--studio-lime);color:#172335;font-size:12px;font-weight:750}
+#root .app-shell.dp-studio .dp-side-ai:hover {background:#e6ffae;transform:translateY(-1px)}
+#root .app-shell.dp-studio .dp-side-ai svg:first-child {color:#15243a}
+#root .app-shell.dp-studio .dp-side-tool {color:#92a1ad;font-size:11px;font-weight:600}
+/* Whole-site visual grammar */
+#root .app-shell.dp-studio .page-heading {margin-bottom:26px}
+#root .app-shell.dp-studio .page-heading .eyebrow {font:600 10px var(--studio-mono);letter-spacing:.1em;color:var(--studio-blue)}
+#root .app-shell.dp-studio .page-heading h1 {font-size:clamp(30px,3vw,44px);line-height:1.15;color:var(--studio-ink);margin:10px 0}
+#root .app-shell.dp-studio .page-heading p {color:#68768a;font-size:13px;line-height:1.7}
+#root .app-shell.dp-studio :is(.panel,.eng-panel,.eng-card,.eng-metric) {border-radius:12px;border-color:var(--studio-hairline);box-shadow:0 9px 30px rgba(25,39,51,.025);background:var(--studio-white)}
+#root .app-shell.dp-studio .panel-header h3 {font-size:18px;font-weight:700}
+#root .app-shell.dp-studio .btn.primary {background:var(--studio-blue);box-shadow:none;color:white;border-radius:8px}
+#root .app-shell.dp-studio .btn.primary:hover {background:#263ed5}
+#root .app-shell.dp-studio .btn.secondary {background:#f2f3ed;color:var(--studio-ink);border-color:var(--studio-hairline)}
+#root .app-shell.dp-studio .btn {font-size:12px;letter-spacing:-.01em;border-radius:8px}
+#root .app-shell.dp-studio .status {border-radius:5px;font-size:10px}
+#root .app-shell.dp-studio .text-link {color:var(--studio-blue)}
+#root .app-shell.dp-studio :is(.field input,.field textarea,.control,.auth-card input,select,.members-invite input) {border-radius:8px;border-color:#dbe0de}
+#root .app-shell.dp-studio .form :is(input,textarea,select):focus {border-color:var(--studio-blue);box-shadow:0 0 0 3px #4255da13}
+#root .app-shell.dp-studio .modal {background:var(--studio-white);border:1px solid var(--studio-hairline);border-radius:13px}
+/* Dashboard / editorial command center */
+#root .app-shell.dp-studio .studio-dashboard {display:flex;flex-direction:column;gap:0;animation:studio-reveal 390ms ease-out both}
+@keyframes studio-reveal {from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.studio-dashboard-overline {display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:17px;font:600 10px var(--studio-mono);letter-spacing:.09em;color:#738094}
+.studio-dashboard-overline>span:first-child {display:flex;align-items:center;gap:8px}
+.studio-dashboard-overline svg {color:var(--studio-blue)}
+.studio-hero {position:relative;min-height:345px;display:grid;grid-template-columns:minmax(0,1.17fr) minmax(300px,.83fr);overflow:hidden;background:#172638;color:#fff;border-radius:14px;isolation:isolate}
+.studio-hero::before {position:absolute;inset:0;content:'';opacity:.17;pointer-events:none;background-image:linear-gradient(#71829522 1px,transparent 1px),linear-gradient(90deg,#71829522 1px,transparent 1px);background-size:34px 34px;mask-image:linear-gradient(90deg,transparent,black 60%);z-index:-1}
+.studio-hero::after {content:'';width:380px;height:380px;position:absolute;right:-100px;top:-210px;border:1px solid #66799535;border-radius:50%;pointer-events:none}
+.studio-hero-copy {position:relative;z-index:2;padding:clamp(28px,3vw,46px) clamp(30px,3vw,50px);display:flex;flex-direction:column;align-items:flex-start}
+.studio-hero-tag {display:flex;align-items:center;gap:10px;color:#bed0ca;font:600 10px var(--studio-mono);letter-spacing:.12em}
+.studio-status-pulse {width:7px;height:7px;border-radius:50%;background:var(--studio-lime);box-shadow:0 0 0 4px #d8f6791f}
+.studio-hero-index {color:#6a8994;padding-left:12px}
+.studio-hero h1 {font-family:var(--studio-font);font-size:clamp(37px,3.9vw,59px);line-height:1.09;letter-spacing:-.06em;margin:24px 0 16px;font-weight:650}
+.studio-hero h1 em {font-style:normal;color:var(--studio-lime)}
+.studio-hero-copy>p {max-width:480px;color:#b1beca;font-size:13px;line-height:1.75;margin:0}
+.studio-hero-cta {display:flex;flex-wrap:wrap;gap:12px;margin-top:29px}
+.studio-btn-lime,.studio-btn-outline {display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:44px;padding:11px 16px;border-radius:7px;font:700 12px var(--studio-font)}
+.studio-btn-lime {background:var(--studio-lime);color:#1d2a29;border:1px solid var(--studio-lime)}
+.studio-btn-lime:hover {background:#eeffc1;transform:translateY(-2px)}
+.studio-btn-outline {background:#ffffff08;color:#ebf0ee;border:1px solid #5b6b7c}
+.studio-btn-outline:hover {border-color:var(--studio-lime);color:var(--studio-lime)}
+.studio-hero-visual {position:relative;overflow:hidden;border-left:1px solid #41506182;margin:20px 20px 20px 0;background:#192c3c80;border-radius:9px;display:flex;flex-direction:column;justify-content:space-between;z-index:1}
+.studio-hero-visual-top,.studio-hero-visual-bottom {display:flex;align-items:center;justify-content:space-between;padding:16px 19px;font:600 9px var(--studio-mono);letter-spacing:.08em;color:#a0b2bf}
+.studio-hero-visual-top>span:last-child {color:var(--studio-lime);display:flex;gap:8px;align-items:center}
+.studio-hero-visual-top i {height:6px;width:6px;background:var(--studio-lime);border-radius:50%}
+.studio-hero-visual-bottom {border-top:1px solid #51687947;color:#abc0c9;gap:5px}
+.studio-hero-visual-bottom b {color:var(--studio-lime)}
+.studio-orbit {height:228px;max-width:270px;min-width:205px;align-self:center;position:relative;display:grid;place-items:center}
+.studio-orbit-ring {border:1px solid #728d9a67;border-radius:50%;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)}
+.studio-orbit-ring.ring-outer {width:220px;height:220px;border-style:dashed;animation:studio-orbit 60s linear infinite}
+.studio-orbit-ring.ring-inner {width:155px;height:155px;border-color:#61798377}
+@keyframes studio-orbit {to{transform:translate(-50%,-50%) rotate(360deg)}}
+.studio-orbit-hub {height:121px;width:121px;border-radius:50%;background:var(--studio-lime);color:#263239;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1px;box-shadow:0 0 0 10px #d5f6781b}
+.studio-orbit-hub>span,.studio-orbit-hub>i {font:600 9px var(--studio-mono);letter-spacing:.13em;font-style:normal}
+.studio-orbit-hub strong {font:650 39px/1.08 var(--studio-font);letter-spacing:-.08em}
+.studio-orbit-hub small {font-size:16px;letter-spacing:0}
+.studio-orbit-point {position:absolute;width:35px;height:35px;border:1px solid #678491;border-radius:50%;background:#213a4a;color:#cde9ed;display:grid;place-items:center}
+.studio-orbit-point.point-1 {top:15px;left:43px}
+.studio-orbit-point.point-2 {top:81px;right:9px}
+.studio-orbit-point.point-3 {bottom:9px;left:60px}
+.studio-hero-corner {position:absolute;bottom:-28px;right:24px;font:650 85px var(--studio-font);letter-spacing:-.1em;color:#ffffff07;pointer-events:none}
+.studio-hero-corner span {color:var(--studio-lime)}
+.studio-project-rail {display:flex;justify-content:space-between;align-items:center;gap:15px;padding:18px 2px 23px;border-bottom:1px solid var(--studio-hairline);margin-bottom:21px}
+.studio-project-current {display:flex;align-items:center;gap:15px;min-width:0}
+.studio-mono-label {font:600 10px/1.5 var(--studio-mono);letter-spacing:.07em;color:var(--studio-blue)}
+.studio-project-current>.studio-mono-label {flex:none;font-size:9px;color:#7d8895}
+.studio-project-current>strong {font:650 14px var(--studio-font);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.studio-project-select {display:flex;align-items:center;gap:10px;white-space:nowrap;font:600 9px var(--studio-mono);color:#7e8992}
+.studio-project-select>select {height:35px;max-width:265px;padding:6px 30px 6px 10px;font:650 11px var(--studio-font);border:1px solid var(--studio-hairline);border-radius:7px;background:var(--studio-white);color:var(--studio-ink)}
+.studio-metrics {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:41px}
+.studio-metric {background:var(--studio-white);border:1px solid var(--studio-hairline);border-radius:11px;display:flex;flex-direction:column;gap:15px;text-align:left;padding:19px 20px 17px;min-width:0;min-height:176px;position:relative;box-shadow:0 8px 24px #17233504;color:var(--studio-ink)}
+.studio-metric:hover {border-color:var(--studio-blue);transform:translateY(-2px);box-shadow:0 12px 26px #1723350a}
+.studio-metric-top {display:flex;align-items:center;justify-content:space-between;gap:10px;color:#86919f}
+.studio-metric-top>svg{color:var(--studio-blue)}
+.studio-metric-number {font:600 9px var(--studio-mono);letter-spacing:.06em}
+.studio-metric-value {font:650 50px/1 var(--studio-font);letter-spacing:-.075em}
+.studio-metric-bottom {display:flex;align-items:flex-end;justify-content:space-between;gap:6px;margin-top:auto}
+.studio-metric-bottom>div {display:flex;flex-direction:column;gap:4px;min-width:0}
+.studio-metric-bottom strong {font:700 12px var(--studio-font)}
+.studio-metric-bottom small {font-size:10px;color:#8c97a3}
+.studio-metric-bottom>svg {color:#a6b0b7;flex:none}
+.studio-section-line {display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:18px}
+.studio-section-line h2 {margin:5px 0 0;font:650 25px/1.22 var(--studio-font);letter-spacing:-.045em}
+.studio-section-aside {font:600 9px var(--studio-mono);letter-spacing:.04em;color:#8f9ba6;text-align:right}
+.studio-insights {display:grid;grid-template-columns:minmax(300px,.89fr) minmax(365px,1.11fr);gap:14px;margin-bottom:38px}
+.studio-insight-card {border:1px solid var(--studio-hairline);background:var(--studio-white);border-radius:12px;padding:25px;min-width:0;min-height:345px}
+.studio-card-header {display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:24px}
+.studio-card-header h3 {font-size:19px;font-weight:650;margin:5px 0 0}
+.studio-card-header>svg {color:#aab4c1}
+.studio-progress-body {display:flex;align-items:center;gap:25px;min-height:160px;margin-bottom:18px}
+.studio-progress-gauge {position:relative;height:150px;width:150px;flex:0 0 150px;border-radius:50%;background:conic-gradient(var(--studio-blue) var(--studio-progress),#eceef0 0);display:grid;place-items:center}
+.studio-progress-gauge::before {content:'';position:absolute;inset:13px;border-radius:50%;background:var(--studio-white)}
+.studio-progress-gauge-inner {z-index:1;display:flex;flex-direction:column;align-items:center}
+.studio-progress-gauge-inner strong {font:650 39px/1 var(--studio-font);letter-spacing:-.065em}
+.studio-progress-gauge-inner strong span {font-size:15px;letter-spacing:0}
+.studio-progress-gauge-inner small {margin-top:5px;font:600 8px var(--studio-mono);letter-spacing:.09em;color:#84909d}
+.studio-progress-copy {min-width:0}
+.studio-progress-copy>span {display:block;font:600 9px var(--studio-mono);letter-spacing:.04em;color:#82909e}
+.studio-progress-copy>strong {display:block;font:650 17px var(--studio-font);margin:8px 0 8px}
+.studio-progress-copy p {max-width:190px;font:12px/1.7 'DM Sans',sans-serif;color:#788695;margin:0 0 10px}
+.studio-progress-copy button {display:inline-flex;gap:7px;align-items:center;padding:0;border:0;color:var(--studio-blue);background:none;font-size:11px;font-weight:700;text-align:left}
+.studio-stage-track {width:100%;height:8px;background:var(--studio-hairline);overflow:hidden;border-radius:3px;display:flex;gap:2px}
+.studio-stage-track>div {height:100%;min-width:0}
+.studio-stage-legend {display:grid;grid-template-columns:1fr 1fr;gap:11px 24px;margin-top:19px}
+.studio-stage-legend>div {display:flex;align-items:center;gap:7px;color:#788797;font-size:11px}
+.studio-stage-legend i {width:7px;height:7px;border-radius:2px;flex:none}
+.studio-stage-legend span {flex:1;white-space:nowrap}
+.studio-stage-legend b {font:700 12px var(--studio-mono);color:var(--studio-ink)}
+.studio-link-btn {background:transparent;border:0;color:var(--studio-blue);display:flex;align-items:center;gap:6px;font:700 11px var(--studio-font)}
+.studio-requirements-card {display:flex;flex-direction:column}
+.studio-recent-list {flex:1}
+.studio-recent-row {display:flex;align-items:center;gap:17px;width:100%;text-align:left;min-height:59px;background:transparent;border:0;border-top:1px solid var(--studio-hairline);padding:12px 0;color:var(--studio-ink)}
+.studio-recent-row:last-child {border-bottom:1px solid var(--studio-hairline)}
+.studio-recent-row:hover {background:#f7f8f4}
+.studio-recent-index {font:600 10px var(--studio-mono);color:#a7b0b7;min-width:17px}
+.studio-recent-row>div {min-width:0;flex:1}
+.studio-recent-row>div strong {display:block;font:650 12px var(--studio-font);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.studio-recent-row>div small {display:block;font:10px var(--studio-mono);color:#97a3ae;margin-top:5px}
+.studio-recent-arrow {flex:none;color:#9ba8b6}
+.studio-recent-empty {min-height:206px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:9px;border:1px dashed #dfe3e1;padding:20px;border-radius:9px}
+.studio-recent-empty>svg {color:var(--studio-blue)}
+.studio-recent-empty>strong {font:650 16px var(--studio-font)}
+.studio-recent-empty p {color:#80909a;font:12px/1.7 'DM Sans',sans-serif;max-width:345px;margin:0}
+.studio-recent-empty button {display:flex;align-items:center;gap:5px;border:0;padding:0;background:none;color:var(--studio-blue);font-weight:750;font-size:12px;margin-top:5px}
+.studio-card-footer {display:flex;justify-content:space-between;gap:10px;margin-top:16px;color:#98a4af;font:600 9px var(--studio-mono)}
+.studio-toolkit-heading {margin-bottom:18px}
+.studio-ai-tools {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;margin-bottom:18px}
+.studio-tool {min-width:0;min-height:241px;display:flex;flex-direction:column;align-items:flex-start;text-align:left;border:1px solid var(--studio-hairline);border-radius:11px;padding:20px 23px 18px;background:var(--studio-white);color:var(--studio-ink)}
+.studio-tool:hover {transform:translateY(-3px);border-color:var(--studio-blue);box-shadow:0 10px 30px #1a23431a}
+.studio-tool-top,.studio-tool-bottom {display:flex;align-items:center;justify-content:space-between;width:100%;gap:12px}
+.studio-tool-top {font:600 10px var(--studio-mono);color:#7e8796}
+.studio-tool-top>svg {color:#526178}
+.studio-tool-icon {width:59px;height:59px;display:grid;place-items:center;border-radius:13px;margin:18px 0 17px}
+.studio-tool-violet .studio-tool-icon {background:#e7e5ff;color:#5454d8}
+.studio-tool-peach .studio-tool-icon {background:#fce9dc;color:#d67e46}
+.studio-tool-mint .studio-tool-icon {background:#def5ea;color:#268b73}
+.studio-tool>strong {font:650 18px var(--studio-font);letter-spacing:-.035em;margin-bottom:7px}
+.studio-tool-description {display:block;font:11.5px/1.65 'DM Sans',sans-serif;color:#7d8b96;min-height:38px;max-width:305px}
+.studio-tool-bottom {border-top:1px solid var(--studio-hairline);padding-top:14px;margin-top:20px;color:var(--studio-blue);font:700 9px var(--studio-mono);letter-spacing:.045em}
+.studio-knowledge-strip {width:100%;display:flex;align-items:center;gap:21px;padding:20px 24px;background:var(--studio-lime);border:0;border-radius:10px;color:var(--studio-ink);text-align:left;margin-bottom:31px}
+.studio-knowledge-strip:hover {background:#e1ffaa;transform:translateY(-1px)}
+.studio-knowledge-symbol {width:48px;height:48px;display:grid;place-items:center;border:1px solid #6c945d;border-radius:10px;flex:none}
+.studio-knowledge-copy {flex:1;min-width:0;display:flex;flex-direction:column;gap:7px}
+.studio-knowledge-copy small {font:700 9px var(--studio-mono);letter-spacing:.06em}
+.studio-knowledge-copy strong {font:650 20px/1.2 var(--studio-font);letter-spacing:-.03em}
+.studio-knowledge-cta {display:flex;gap:9px;align-items:center;font:700 12px var(--studio-font);white-space:nowrap}
+.studio-dashboard-footer {display:flex;justify-content:space-between;gap:15px;padding-bottom:6px;color:#9da7ad;font:600 9px var(--studio-mono);letter-spacing:.04em}
+/* Web research workspace: match the dashboard instead of looking like a plugin. */
+#root .app-shell.dp-studio .rag-layout {grid-template-columns:minmax(310px,.9fr) minmax(410px,1.5fr);gap:16px}
+#root .app-shell.dp-studio .docs-panel {padding:22px}
+#root .app-shell.dp-studio .chat-panel {min-height:720px;height:calc(100vh - 240px);max-height:900px}
+#root .app-shell.dp-studio .chat-header {background:#fdfdf8;border-bottom:1px solid var(--studio-hairline);padding:20px 24px}
+#root .app-shell.dp-studio .chat-avatar {background:var(--studio-lime);color:var(--studio-ink);border-radius:9px}
+#root .app-shell.dp-studio .chat-header h3 {font-size:17px}
+#root .app-shell.dp-studio .chat-input {background:#fffefa;padding:17px 21px}
+#root .app-shell.dp-studio .chat-input input {background:#f7f7f3;border:1px solid var(--studio-hairline);border-radius:7px;padding:14px;font-size:12px}
+#root .app-shell.dp-studio .send-btn {background:var(--studio-blue);border-radius:7px}
+#root .app-shell.dp-studio .user .bubble {background:var(--studio-blue);border-radius:11px 11px 3px 11px}
+#root .app-shell.dp-studio .ai .bubble {background:#f0f1eb;border-radius:11px 11px 11px 3px}
+#root .app-shell.dp-studio .chat-hero-icon {border:1px solid #d6dcaf;background:#f0f6d9;color:#495e35;border-radius:18px}
+#root .app-shell.dp-studio .suggested-questions button {border-radius:7px;background:#fafaf6;color:#455267}
+#root .app-shell.dp-studio .dropzone {border-color:#b8c4d3;background:#f8faf4;border-radius:9px;color:var(--studio-blue)}
+#root .app-shell.dp-studio .dropzone:hover {border-color:var(--studio-blue)}
+#root .app-shell.dp-studio .official-rag {border-top:1px solid var(--studio-hairline);margin-top:20px}
+#root .app-shell.dp-studio .official-rag-heading svg {color:var(--studio-blue)}
+#root .app-shell.dp-studio .official-search button {background:var(--studio-blue);border-radius:7px}
+#root .app-shell.dp-studio .official-source {border-radius:8px}
+#root .app-shell.dp-studio .official-import:not(.is-added) {border-radius:6px}
+#root .app-shell.dp-studio .info-box {background:#edf1f6;color:#596b7b;border-radius:8px}
+/* Other pages, AI intelligence and board */
+#root .app-shell.dp-studio .eng-heading-icon {background:#e7e5ff;color:var(--studio-blue);border-radius:10px}
+#root .app-shell.dp-studio .eng-heading h1 {font-size:30px}
+#root .app-shell.dp-studio .eng-heading-text small {color:var(--studio-blue);font-family:var(--studio-mono)}
+#root .app-shell.dp-studio .eng-chip {border-radius:5px}
+#root .app-shell.dp-studio .eng-metric strong {font-family:var(--studio-font)}
+#root .app-shell.dp-studio .kanban-col {border-radius:11px}
+#root .app-shell.dp-studio .task-card {border-radius:9px;border-color:var(--studio-hairline)}
+#root .app-shell.dp-studio .task-card:hover {border-color:var(--studio-blue)}
+#root .app-shell.dp-studio .toast {border-radius:8px}
+/* Editorial sign-in experience */
+.u021-auth-shell .auth-layout {background:#f7f6f2}
+.u021-auth-shell .auth-visual {background:#172638;padding:clamp(30px,5vw,70px) 8%}
+.u021-auth-shell .auth-visual:before {width:590px;height:590px;right:-210px;top:140px;border:1px dashed #9cb9c351;box-shadow:0 0 0 70px #627a8a0d,0 0 0 140px #627a8a0d}
+.u021-auth-shell .auth-brand {font:700 26px 'Space Grotesk',sans-serif;letter-spacing:-.065em}
+.u021-auth-shell .auth-brand b {color:#d5f678}
+.u021-auth-shell .auth-brand .brand-mark {background:#d5f678;color:#172638;border-radius:9px}
+.u021-auth-shell .auth-hero h1 {font:650 clamp(39px,4.3vw,68px)/1.08 'Space Grotesk',sans-serif;letter-spacing:-.055em}
+.u021-auth-shell .auth-hero h1 span {color:#d5f678}
+.u021-auth-shell .auth-hero>p {color:#bbcad3;font-size:14px}
+.u021-auth-shell .pill-dark {background:#21394b;border:1px solid #455c6d;color:#d5f678;font-family:'IBM Plex Mono',monospace;letter-spacing:.07em}
+.u021-auth-shell .auth-benefits svg {color:#d5f678}
+.u021-auth-shell .graphic-row {border-color:#44596a;border-radius:9px}
+.u021-auth-shell .graphic-row.highlight {background:#34504a;border-color:#7c9967}
+.u021-auth-shell .auth-form-side {background:#f7f6f2}
+.u021-auth-shell .auth-card h2 {font:650 33px 'Space Grotesk',sans-serif;letter-spacing:-.05em}
+.u021-auth-shell .auth-overline {color:#3d55e8;font-family:'IBM Plex Mono',monospace}
+.u021-auth-shell .auth-card input {background:#fffefa;border-radius:8px}
+.u021-auth-shell .auth-card .btn.primary {background:#3d55e8;border-radius:8px}
+.u021-auth-shell .auth-toggle button {color:#3d55e8}
+/* Dark mode mirrors the original theme toggle, not a separate preference. */
+#root .app-shell.dp-studio[data-theme='dark'] {--studio-paper:#121b27;--studio-white:#1b2837;--studio-ink:#edf2f5;--studio-muted:#a0afbb;--studio-hairline:#324050;--studio-blue:#a6adff;--studio-lime:#d9f67d;--studio-orange:#f6b58f;--studio-mint:#6fd6ba}
+#root .app-shell.dp-studio[data-theme='dark'] .topbar {background:rgba(18,27,39,.96)}
+#root .app-shell.dp-studio[data-theme='dark'] :is(.top-left b,.username,.studio-metric,.studio-project-rail,.studio-insight-card,.studio-tool,.studio-project-select>select,.studio-progress-gauge-inner,.studio-stage-legend b) {color:var(--studio-ink)}
+#root .app-shell.dp-studio[data-theme='dark'] .studio-top-action {background:var(--studio-white);color:var(--studio-ink)}
+#root .app-shell.dp-studio[data-theme='dark'] .studio-progress-gauge {background:conic-gradient(var(--studio-blue) var(--studio-progress),#304052 0)}
+#root .app-shell.dp-studio[data-theme='dark'] .studio-recent-row:hover {background:#243346}
+#root .app-shell.dp-studio[data-theme='dark'] .studio-recent-empty {border-color:var(--studio-hairline)}
+#root .app-shell.dp-studio[data-theme='dark'] :is(.studio-project-select>select,.chat-header,.chat-input,.chat-input input,.docs-panel,.eng-card,.eng-panel) {background:var(--studio-white)!important;color:var(--studio-ink)!important}
+#root .app-shell.dp-studio[data-theme='dark'] .studio-tool-description,#root .app-shell.dp-studio[data-theme='dark'] .studio-progress-copy p {color:#a9b6c5}
+#root .app-shell.dp-studio[data-theme='dark'] .studio-progress-gauge-inner {color:var(--studio-ink)}
+#root .app-shell.dp-studio[data-theme='dark'] .studio-knowledge-strip {color:#172335}
+/* Responsive */
+@media(max-width:1330px){
+ #root .app-shell.dp-studio .studio-insights {grid-template-columns:1fr 1.05fr}
+ #root .app-shell.dp-studio .studio-progress-body {gap:15px}
+ #root .app-shell.dp-studio .studio-progress-gauge {width:125px;height:125px;flex-basis:125px}
+ .studio-orbit {transform:scale(.92)}
+}
+@media(max-width:1150px){
+ #root .app-shell.dp-studio .studio-hero {grid-template-columns:1.18fr .82fr}
+ #root .app-shell.dp-studio .studio-hero-visual {margin:17px 17px 17px 0}
+ #root .app-shell.dp-studio .studio-hero h1 {font-size:clamp(34px,4vw,48px)}
+ #root .app-shell.dp-studio .studio-insights {grid-template-columns:1fr}
+ #root .app-shell.dp-studio .studio-requirements-card {min-height:260px}
+ #root .app-shell.dp-studio .studio-progress-body {gap:35px}
+ #root .app-shell.dp-studio .studio-progress-gauge {width:150px;height:150px;flex-basis:150px}
+ #root .app-shell.dp-studio .rag-layout {grid-template-columns:1fr}
+ #root .app-shell.dp-studio .chat-panel {min-height:560px;height:650px}
+}
+@media(max-width:980px){
+ #root .app-shell.dp-studio .sidebar.dp-side,#root .app-shell.dp-studio .sidebar.dp-side.sidebar-collapsed {width:min(278px,86vw)}
+ #root .app-shell.dp-studio .sidebar.dp-side+.main-panel,#root .app-shell.dp-studio .sidebar.dp-side.sidebar-collapsed+.main-panel {margin-left:0;width:100%}
+ #root .app-shell.dp-studio .studio-metrics {grid-template-columns:repeat(2,minmax(0,1fr))}
+ #root .app-shell.dp-studio .studio-ai-tools {grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:700px){
+ #root .app-shell.dp-studio .main-content {padding:20px 15px 40px}
+ #root .app-shell.dp-studio .topbar {height:62px;padding:0 15px}
+ #root .app-shell.dp-studio .topbar-workspace-label {display:none}
+ #root .app-shell.dp-studio .top-left .slash {display:none}
+ #root .app-shell.dp-studio .studio-top-action {display:none}
+ #root .app-shell.dp-studio .topbar .u021-mount {--u021-scale:.25!important;margin:0 -9px}
+ #root .app-shell.dp-studio .studio-hero {display:flex;flex-direction:column;min-height:0}
+ #root .app-shell.dp-studio .studio-hero-copy {padding:31px 26px 25px}
+ #root .app-shell.dp-studio .studio-hero h1 {font-size:clamp(35px,8vw,54px)}
+ #root .app-shell.dp-studio .studio-hero-visual {margin:0 17px 17px;border:1px solid #41506182;min-height:220px}
+ #root .app-shell.dp-studio .studio-orbit {height:185px;transform:scale(.73);margin:-20px 0}
+ #root .app-shell.dp-studio .studio-project-rail {align-items:flex-start;flex-direction:column;gap:12px}
+ #root .app-shell.dp-studio .studio-project-select {width:100%;justify-content:space-between}
+ #root .app-shell.dp-studio .studio-project-select>select {max-width:65%;min-width:0}
+ #root .app-shell.dp-studio .studio-metrics {gap:9px}
+ #root .app-shell.dp-studio .studio-metric {padding:15px;min-height:152px}
+ #root .app-shell.dp-studio .studio-metric-value {font-size:39px}
+ #root .app-shell.dp-studio .studio-section-line {align-items:flex-start}
+ #root .app-shell.dp-studio .studio-section-line h2 {font-size:22px}
+ #root .app-shell.dp-studio .studio-section-aside {display:none}
+ #root .app-shell.dp-studio .studio-insight-card {padding:20px}
+ #root .app-shell.dp-studio .studio-ai-tools {grid-template-columns:1fr}
+ #root .app-shell.dp-studio .studio-tool {min-height:0}
+ #root .app-shell.dp-studio .studio-knowledge-strip {padding:17px;gap:12px}
+ #root .app-shell.dp-studio .studio-knowledge-copy strong {font-size:16px}
+ #root .app-shell.dp-studio .studio-knowledge-cta {font-size:0;gap:0}
+ #root .app-shell.dp-studio .studio-knowledge-cta svg {width:21px;height:21px}
+ #root .app-shell.dp-studio .studio-dashboard-footer span:last-child {display:none}
+}
+@media(max-width:430px){
+ #root .app-shell.dp-studio .studio-current-date {display:none}
+ #root .app-shell.dp-studio .studio-progress-body {gap:16px}
+ #root .app-shell.dp-studio .studio-progress-gauge {height:117px;width:117px;flex-basis:117px}
+ #root .app-shell.dp-studio .studio-progress-gauge-inner strong {font-size:32px}
+ #root .app-shell.dp-studio .studio-progress-copy>strong {font-size:15px}
+ #root .app-shell.dp-studio .studio-stage-legend {gap:10px}
+ #root .app-shell.dp-studio .studio-stage-legend span {font-size:10px}
+ #root .app-shell.dp-studio .studio-recent-row {gap:9px}
+ #root .app-shell.dp-studio .studio-recent-row .status {display:none}
+}
+@media(prefers-reduced-motion:reduce){.studio-dashboard,.studio-orbit-ring.ring-outer{animation:none!important}#root .app-shell.dp-studio button{transition:none!important}}

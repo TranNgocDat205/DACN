@@ -76,8 +76,8 @@ export default function CompactSidebar({
       {mobileOpen && <button type="button" className="dp-side-backdrop" onClick={onCloseMobile} aria-label="Đóng menu điều hướng" />}
       <aside className={'sidebar dp-side' + (isAdmin ? ' dp-side-admin' : '') + (compact ? ' sidebar-collapsed' : '') + (mobileOpen ? ' dp-side-mobile-open' : '')} aria-label="Điều hướng DevPilot AI">
         <div className="dp-side-brand">
-          <div className="dp-side-logo" aria-hidden="true"><Layers size={21} /></div>
-          {!compact && <div className="dp-side-wordmark">DevPilot <b>AI</b><small>DEVELOPMENT STUDIO</small></div>}
+          <div className="dp-side-logo" aria-hidden="true"><span className="studio-logo-glyph">D<span>·</span></span></div>
+          {!compact && <div className="dp-side-wordmark">DevPilot <b>AI</b><small>ENGINEERING STUDIO / 26</small></div>}
           <button type="button" className="dp-side-mobile-close" aria-label="Đóng menu" onClick={onCloseMobile}><X size={19} /></button>
         </div>
         <div className="dp-side-project-wrap">
@@ -91,6 +91,7 @@ export default function CompactSidebar({
           {isAdmin && group('admin', 'QUẢN TRỊ HỆ THỐNG', Shield, adminTabs, adminOpen, next => { setAdminOpen(next); if (next) setWorkspaceOpen(false); })}
           {group('workspace', 'KHÔNG GIAN LÀM VIỆC', FolderKanban, tabs, workspaceOpen, next => { setWorkspaceOpen(next); if (next) setAdminOpen(false); })}
         </nav>
+        {!compact && <div className="studio-sidebar-note"><span className="studio-note-sigil"><Sparkles size={16}/></span><div><small>WORKSPACE INTELLIGENCE</small><strong>Ý tưởng. Kế hoạch.<br/>Thành sản phẩm.</strong></div></div>}
         <div className="dp-side-footer">
           <button type="button" className="dp-side-ai" title="Mở trợ lý AI & RAG" onClick={() => navigate('documents')}>
             <Sparkles size={17} aria-hidden="true" />

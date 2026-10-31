@@ -50,4 +50,38 @@ class RoleAccessTest {
     login(5L,"USER");
     assertEquals(HttpStatus.FORBIDDEN,assertThrows(ResponseStatusException.class,roles::requireAdmin).getStatusCode());
   }
+  @Test void viewerMayReadButCannotEditProject() {
+    login(5L,"USER");
+    Project p=new Project();p.id=17L;p.ownerId=1L;
+    when(projects.findById(17L)).thenReturn(Optional.of(p));
+    Member viewer=new Member();viewer.projectId=17L;viewer.userId=5L;viewer.role="VIEWER";
+    when(members.findByProjectIdAndUserId(17L,5L)).thenReturn(Optional.of(viewer));
+    assertSame(p,access.require(17L));
+    assertEquals(HttpStatus.FORBIDDEN,assertThrows(ResponseStatusException.class,()->access.write(17L)).getStatusCode());
+  }
+  @Test void editorCanChangeProjectDataButCannotManageMembers() {
+    login(5L,"USER");
+    Project p=new Project();p.id=17L;p.ownerId=1L;
+    when(projects.findById(17L)).thenReturn(Optional.of(p));
+    Member editor=new Member();editor.projectId=17L;editor.userId=5L;editor.role="MEMBER";
+    when(members.findByProjectIdAndUserId(17L,5L)).thenReturn(Optional.of(editor));
+    assertSame(p,access.write(17L));
+    assertEquals(HttpStatus.FORBIDDEN,assertThrows(ResponseStatusException.class,()->access.owner(17L)).getStatusCode());
+  }
+  @Test void ownerMayEditAndManageMembersEvenIfLegacyMembershipIsMissing() {
+    login(5L,"USER");
+    Project p=new Project();p.id=17L;p.ownerId=5L;
+    when(projects.findById(17L)).thenReturn(Optional.of(p));
+    assertSame(p,access.write(17L));
+    assertDoesNotThrow(()->access.owner(17L));
+  }
+  @Test void removedProjectMemberCannotUseExistingJwt() {
+    login(5L,"USER");
+    Project p=new Project();p.id=17L;p.ownerId=1L;
+    when(projects.findById(17L)).thenReturn(Optional.of(p));
+    when(members.findByProjectIdAndUserId(17L,5L)).thenReturn(Optional.empty());
+    assertEquals(HttpStatus.FORBIDDEN,assertThrows(ResponseStatusException.class,()->access.require(17L)).getStatusCode());
+    assertEquals(HttpStatus.FORBIDDEN,assertThrows(ResponseStatusException.class,()->access.write(17L)).getStatusCode());
+  }
+
 }

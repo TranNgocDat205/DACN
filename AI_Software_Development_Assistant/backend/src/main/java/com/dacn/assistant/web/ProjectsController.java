@@ -15,9 +15,20 @@ public class ProjectsController {
   public ProjectsController(Repos.Projects p,Repos.Members m,Repos.Users u,SecurityConfig a,ProjectAccess x){projects=p;members=m;users=u;auth=a;access=x;}
   public record ProjectRequest(String name,String description){}
   public record MemberRequest(String email,String role){}
+  public record MemberRoleRequest(String role) {}
+  private String validMemberRole(String role) {
+    String normalized=role==null||role.isBlank()?"MEMBER":role.trim().toUpperCase(Locale.ROOT);
+    if(!List.of("MEMBER","VIEWER").contains(normalized))
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Role must be MEMBER or VIEWER");
+    return normalized;
+  }
   @GetMapping public List<Project> list(){
     if(access.isAdmin())return projects.findAll();
-    List<Long> ids=members.findByUserId(auth.currentUser()).stream().map(m->m.projectId).distinct().toList();
+    Long userId=auth.currentUser();
+    Set<Long> ids=new LinkedHashSet<>();
+    members.findByUserId(userId).forEach(m->ids.add(m.projectId));
+    // Also retain access for legacy projects whose owner is missing a membership row.
+    projects.findByOwnerId(userId).forEach(p->ids.add(p.id));
     return projects.findAllById(ids);
   }
   @GetMapping("/{id}") public Project get(@PathVariable Long id){return access.require(id);}
@@ -38,10 +49,36 @@ public class ProjectsController {
     return out;
   }
   @PostMapping("/{id}/members") public Map<String,Object> addMember(@PathVariable Long id,@RequestBody MemberRequest request){
-    access.owner(id);String email=request.email()==null?"":request.email().trim().toLowerCase(Locale.ROOT);
+    access.owner(id);if(request==null)throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Member data required");String email=request.email()==null?"":request.email().trim().toLowerCase(Locale.ROOT);
     User user=users.findByEmail(email).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Account not found; user must register first"));
     if(members.findByProjectIdAndUserId(id,user.id).isPresent())throw new ResponseStatusException(HttpStatus.CONFLICT,"Already a member");
-    Member m=new Member();m.projectId=id;m.userId=user.id;m.role="MEMBER";members.save(m);
+    Member m=new Member();m.projectId=id;m.userId=user.id;m.role=validMemberRole(request.role());members.save(m);
     return Map.of("id",m.id,"name",user.name,"email",user.email,"role",m.role);
   }
+  @PutMapping("/{id}/members/{userId}/role") @Transactional
+  public Map<String,Object> changeMemberRole(@PathVariable Long id,@PathVariable Long userId,
+                                                @RequestBody MemberRoleRequest request) {
+    access.owner(id);
+    if (request==null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Role required");
+    Project project=access.require(id);
+    if (project.ownerId.equals(userId))
+      throw new ResponseStatusException(HttpStatus.CONFLICT,"Project owner cannot be demoted here");
+    Member member=members.findByProjectIdAndUserId(id,userId).orElseThrow(
+      () -> new ResponseStatusException(HttpStatus.NOT_FOUND,"Member not found"));
+    member.role=validMemberRole(request.role());
+    members.save(member);
+    return Map.of("userId",userId,"role",member.role);
+  }
+
+  @DeleteMapping("/{id}/members/{userId}") @Transactional
+  public void removeMember(@PathVariable Long id,@PathVariable Long userId) {
+    access.owner(id);
+    Project project=access.require(id);
+    if (project.ownerId.equals(userId))
+      throw new ResponseStatusException(HttpStatus.CONFLICT,"Project owner cannot be removed");
+    Member member=members.findByProjectIdAndUserId(id,userId).orElseThrow(
+      () -> new ResponseStatusException(HttpStatus.NOT_FOUND,"Member not found"));
+    members.delete(member);
+  }
+
 }

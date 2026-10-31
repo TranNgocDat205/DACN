@@ -1,15 +1,22 @@
+import ProjectRoleNotice from './components/ProjectRoleNotice.jsx';
 import React, {useEffect,useState,useMemo,useCallback} from 'react';
 import {createRoot} from 'react-dom/client';
 import {LayoutDashboard,FolderKanban,FileText,GitBranch,Columns3,BookOpen,Users,LogOut,Plus,Search,ChevronDown,Sparkles,PanelLeftClose,PanelLeftOpen,ArrowRight,LoaderCircle,Trash2,CheckCircle2,AlertCircle,ExternalLink,Send,UploadCloud,Menu,CalendarDays,Target,Play,Edit3,X,ClipboardList,Check,Shield,Layers,Clock,Database,RefreshCw} from 'lucide-react';
 import './style.css';
 import CompactSidebar from './components/CompactSidebar.jsx';
+import AuthExperience from './components/AuthExperience.jsx';
+import LandingPage from './components/LandingPage.jsx';
 import DocumentDropUploader from './components/DocumentDropUploader.jsx';
 import OfficialRagSources from './components/OfficialRagSources.jsx';
 import AdminPremiumWorkspace from './components/AdminPremiumWorkspace.jsx';
 import './components/DayNightSkySwitch.css';
 import DayNightSkySwitch from './components/DayNightSkySwitch.jsx';
 import {ConflictDetector,ChangeImpactSimulator,ReleaseTraceability} from './components/EngineeringIntelligence.jsx';
-import {GitCompareArrows,Network,ScanSearch} from 'lucide-react';
+import {GitCompareArrows,Network,ScanSearch,ArrowUpRight,MoveRight,CircleDot,Layers3,ChartNoAxesCombined,Route} from 'lucide-react';
+import './studio-redesign.css';
+import MissionControl from './components/MissionControl.jsx';
+import CommandPalette from './components/CommandPalette.jsx';
+import './mission-control.css';
 
 const API = import.meta.env.VITE_API_URL || '/api';
 const displayStatus={DRAFT:'Bản nháp',ANALYZING:'Đang phân tích',APPROVED:'Đã duyệt',IN_DEVELOPMENT:'Đang phát triển',COMPLETED:'Hoàn thành',PLANNED:'Kế hoạch',ACTIVE:'Đang chạy',TODO:'Cần làm',IN_PROGRESS:'Đang làm',REVIEW:'Kiểm tra',DONE:'Hoàn tất'};
@@ -19,16 +26,20 @@ const niceDate=s=>s?new Date(s).toLocaleDateString('vi-VN'):'';
 function initialSession(){try{return JSON.parse(localStorage.getItem('devpilot-session')||'null')}catch{return null}}
 
 function initialTheme(){
- try { return localStorage.getItem('devpilot-theme') === 'dark' ? 'dark' : 'light'; }
- catch { return 'light'; }
+ try { return localStorage.getItem('devpilot-theme') === 'light' ? 'light' : 'dark'; }
+ catch { return 'dark'; }
 }
 function App(){
  const [session,setSession]=useState(initialSession);
+ const [commandOpen,setCommandOpen]=useState(false);
+ const [showAuth,setShowAuth]=useState(()=>window.location.hash==='#login');
+ const [authMode,setAuthMode]=useState('login');
  const [theme,setTheme]=useState(initialTheme);
  useEffect(()=>{try{localStorage.setItem('devpilot-theme',theme)}catch{}},[theme]);
  const [projects,setProjects]=useState([]);const [projectId,setProjectId]=useState(null);
  const [page,setPage]=useState(()=>initialSession()?.user?.role==='ADMIN'?'admin-overview':'dashboard');const [adminUserFilter,setAdminUserFilter]=useState(null);const [data,setData]=useState({requirements:[],stories:[],criteria:[],sprints:[],tasks:[],documents:[],members:[]});
  const [aiStatus,setAiStatus]=useState(null);const [busy,setBusy]=useState(false);const [toast,setToast]=useState(null);const [mobileSideOpen,setMobileSideOpen]=useState(false);const [sidebar,setSidebar]=useState(true);const [showProjectForm,setShowProjectForm]=useState(false);
+ useEffect(()=>{const handler=(e)=>{if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();if(session)setCommandOpen(old=>!old)} };window.addEventListener('keydown',handler);return()=>window.removeEventListener('keydown',handler)},[session]);
  const token=session?.token;
  const isAdmin=session?.user?.role==='ADMIN';
  const adminTabs=[['admin-overview','Admin · Tổng quan',Shield],['admin-users','Quản lý tài khoản',Users],['admin-projects','Quản lý dự án',FolderKanban],['admin-teams','Quản lý nhóm',Users],['admin-analytics','Số liệu phân tích',LayoutDashboard]];
@@ -57,15 +68,24 @@ function App(){
     notify('Không tải được API: '+errors.join(', '),'error');
   }
  },[api,token,projectId]);
- useEffect(()=>{if(!token)return;api('/me').then(user=>setSession(old=>old&&old.token===token?{...old,user}:old)).catch(()=>{});},[token,api]);
+ useEffect(()=>{if(!token)return;api('/me').then(user=>{
+    setSession(old=>old&&old.token===token?{...old,user}:old);
+    if(user?.role!=='ADMIN')setPage(old=>old.startsWith('admin-')?'dashboard':old);
+  }).catch(()=>{});},[token,api]);
+ useEffect(()=>{if(session?.token){try{localStorage.setItem('devpilot-session',JSON.stringify(session))}catch{}}},[session]);
  useEffect(()=>{reloadProjects()},[reloadProjects]);useEffect(()=>{reload()},[reload]);
  useEffect(()=>{if(token)api('/ai/status').then(setAiStatus).catch(()=>setAiStatus({status:'offline'}))},[token,api]);
  const project=projects.find(p=>p.id===projectId);
+ const projectMembership=data.members.find(m=>m.userId===session?.user?.id);
+ const projectRole=isAdmin?'ADMIN':project?.ownerId===session?.user?.id?'OWNER':(projectMembership?.role||'MEMBER');
+ const isProjectViewer=projectRole==='VIEWER';
  const counts=useMemo(()=>({requirements:data.requirements.length,stories:data.stories.length,tasks:data.tasks.length,done:data.tasks.filter(t=>t.status==='DONE').length}),[data]);
- async function mutate(path,method,body){return await call(async()=>{const result=await api(`/projects/${projectId}${path}`,{method,body:body instanceof FormData?body:(body?JSON.stringify(body):undefined)});await reload();notify('Đã lưu thành công');return result})}
+ async function mutate(path,method,body){if(isProjectViewer){notify('Tài khoản chỉ có quyền xem dự án, không thể chỉnh sửa.','error');return null;}return await call(async()=>{const result=await api(`/projects/${projectId}${path}`,{method,body:body instanceof FormData?body:(body?JSON.stringify(body):undefined)});await reload();notify('Đã lưu thành công');return result})}
  function logout(){localStorage.removeItem('devpilot-session');setSession(null);setProjects([]);setProjectId(null);setAdminUserFilter(null);setData({requirements:[],stories:[],criteria:[],sprints:[],tasks:[],documents:[],members:[]});setPage('dashboard')}
- if(!session)return <div className="u021-theme-root u021-auth-shell" data-theme={theme}><div className="u021-auth-toggle"><DayNightSkySwitch theme={theme} onChange={setTheme}/></div><AuthPage onAuth={s=>{setSession(s);setPage(s.user?.role==='ADMIN'?'admin-overview':'dashboard');localStorage.setItem('devpilot-session',JSON.stringify(s))}} api={api}/></div>;
- return <div className={'app-shell u021-theme-root'+(isAdmin&&page.startsWith('admin-')?' admin-premium-mode':'')} data-theme={theme}>
+ if(!session)return showAuth
+  ? <div className="u021-theme-root u021-auth-shell" data-theme={theme}><button className="lp-auth-back" type="button" onClick={()=>{setShowAuth(false);window.history.replaceState(null,'',window.location.pathname)}}>← Quay lại trang giới thiệu</button><div className="u021-auth-toggle"><DayNightSkySwitch theme={theme} onChange={setTheme}/></div><AuthExperience initialMode={authMode} onAuth={s=>{setSession(s);setPage(s.user?.role==='ADMIN'?'admin-overview':'dashboard');localStorage.setItem('devpilot-session',JSON.stringify(s))}} api={api}/></div>
+  : <LandingPage theme={theme} onThemeChange={setTheme} onStart={()=>{setAuthMode('login');setShowAuth(true);window.history.replaceState(null,'', '#login');window.scrollTo(0,0);}} onRegister={()=>{setAuthMode('register');setShowAuth(true);window.history.replaceState(null,'', '#login');window.scrollTo(0,0);}} />;
+ return <div className={'app-shell dp-studio u021-theme-root'+(isAdmin&&page.startsWith('admin-')?' admin-premium-mode':'')} data-theme={theme}>
   <CompactSidebar
    isAdmin={isAdmin} adminTabs={adminTabs} tabs={tabs} page={page}
    onNavigate={setPage} projectName={project?.name} onCreateProject={()=>setShowProjectForm(true)}
@@ -73,11 +93,12 @@ function App(){
    onExpand={()=>setSidebar(true)} mobileOpen={mobileSideOpen}
    onCloseMobile={()=>setMobileSideOpen(false)} onLogout={logout}
   />
-  <main className="main-panel"><header className="topbar"><div className="top-left"><button className="mobile-menu icon-btn" aria-label="Mở menu" aria-expanded={mobileSideOpen} onClick={()=>setMobileSideOpen(v=>!v)}><Menu size={20}/></button><span className="crumb">Workspace</span><span className="slash">/</span><b>{visibleTabs.find(t=>t[0]===page)?.[1]||'Tổng quan'}</b></div><div className="top-right"><DayNightSkySwitch theme={theme} onChange={setTheme}/><span className="online-dot"/> <span className="connected">{aiStatus?.status==='offline'?'AI offline':aiStatus?.llm_configured?'AI đã kết nối':'AI demo mode'}</span><div className="avatar">{session.user?.name?.[0]?.toUpperCase()||'U'}</div><span className="username">{session.user?.name} · {isAdmin?'Admin':'User'}</span></div></header>
+  <main className="main-panel"><header className="topbar"><div className="top-left"><button className="mobile-menu icon-btn" aria-label="Mở menu" aria-expanded={mobileSideOpen} onClick={()=>setMobileSideOpen(v=>!v)}><Menu size={20}/></button><span className="topbar-workspace-label">DEVPILOT / STUDIO</span><span className="slash">/</span><b>{visibleTabs.find(t=>t[0]===page)?.[1]||'Tổng quan'}</b></div><div className="top-right"><button type="button" className="mc-command-trigger" onClick={()=>setCommandOpen(true)} aria-label="Tìm và chuyển nhanh, Ctrl K"><Search size={16}/><span>Tìm kiếm</span><kbd>Ctrl K</kbd></button><button type="button" className="studio-top-action" onClick={()=>setPage('documents')} title="Mở kho tài liệu và AI Web Search"><BookOpen size={15}/> Knowledge</button><DayNightSkySwitch theme={theme} onChange={setTheme}/><span className="online-dot"/> <span className="connected">{aiStatus?.status==='offline'?'AI offline':aiStatus?.llm_configured?'AI đã kết nối':'AI demo mode'}</span><div className="avatar">{session.user?.name?.[0]?.toUpperCase()||'U'}</div><span className="username">{session.user?.name} · {isAdmin?'Admin':'User'}</span></div></header>
    <div className="main-content">
+    {project && isProjectViewer && !page.startsWith('admin-') && <ProjectRoleNotice role="VIEWER" projectName={project.name}/>}
     {showProjectForm&&<Modal title="Tạo dự án mới" onClose={()=>setShowProjectForm(false)}><ProjectForm save={async(v)=>{const created=await call(()=>api('/projects',{method:'POST',body:JSON.stringify(v)}));if(created){setShowProjectForm(false);await reloadProjects();setProjectId(created.id);setPage('dashboard');notify('Đã tạo dự án')}}}/></Modal>}
     {page.startsWith('admin-')&&isAdmin?<AdminPremiumWorkspace mode={page.slice(6)} api={api} notify={notify} currentId={session.user.id} userFilter={adminUserFilter} setUserFilter={setAdminUserFilter} onNavigate={setPage} onOpenProject={id=>{setProjectId(id);setPage('dashboard')}} refreshProjects={reloadProjects}/>:!project?<EmptyProject onCreate={()=>setShowProjectForm(true)}/>:
-     <>{page==='dashboard'&&<Dashboard project={project} data={data} counts={counts} navigate={setPage} projects={projects} changeProject={setProjectId} />}
+     <>{page==='dashboard'&&<MissionControl project={project} data={data} counts={counts} navigate={setPage} projects={projects} changeProject={setProjectId} aiStatus={aiStatus} onOpenCommand={()=>setCommandOpen(true)}/>}
       {page==='requirements'&&<Requirements data={data} busy={busy} mutate={mutate}/>}
       {page==='ai-conflicts'&&<ConflictDetector key={projectId} projectId={projectId} data={data} api={api} notify={notify}/>}
       {page==='ai-impact'&&<ChangeImpactSimulator key={projectId} projectId={projectId} data={data} api={api} notify={notify} onApplied={reload}/>}
@@ -90,15 +111,10 @@ function App(){
      </>}
    </div>
   </main>
+  <CommandPalette open={commandOpen} onClose={()=>setCommandOpen(false)} onNavigate={setPage} tabs={visibleTabs} data={data}/>
   {busy&&<div className="saving-indicator"><LoaderCircle className="spin" size={16}/> Đang xử lý...</div>}
   {toast&&<div role="alert" className={'toast '+(toast.type==='error'?'toast-error':'')}><span>{toast.type==='error'?<AlertCircle size={18}/>:<CheckCircle2 size={18}/>}</span>{toast.message}</div>}
  </div>
-}
-function AuthPage({onAuth,api}){
- const [mode,setMode]=useState('login');const [form,setForm]=useState({name:'',email:'',password:''});const [error,setError]=useState('');const [busy,setBusy]=useState(false);
- async function submit(e){e.preventDefault();setError('');setBusy(true);try{onAuth(await api('/auth/'+(mode==='login'?'login':'register'),{method:'POST',body:JSON.stringify(form)}))}catch(e){setError(e.message)}finally{setBusy(false)}}
- return <div className="auth-layout"><div className="auth-visual"><div className="auth-brand"><div className="brand-mark"><Layers size={26}/></div> DevPilot <b>AI</b></div><div className="auth-hero"><span className="pill-dark"><Sparkles size={14}/> POWERED BY AI</span><h1>Build better software.<br/><span>Ship with confidence.</span></h1><p>Không gian làm việc thống nhất giúp đội ngũ phân tích yêu cầu, tổ chức Sprint và khai thác kiến thức dự án bằng AI.</p><div className="auth-benefits"><span><Check size={18}/> AI Requirements</span><span><Check size={18}/> Agile Workspace</span><span><Check size={18}/> RAG Knowledge</span></div></div><div className="auth-graphic"><div className="graphic-row"><div className="graphic-circle"><FileText size={20}/></div><span>Software Requirement</span><CheckCircle2 size={18}/></div><div className="graphic-row highlight"><div className="graphic-circle"><Sparkles size={20}/></div><span>AI Analysis & User Stories</span><span className="pulse-chip">AI</span></div><div className="graphic-row"><div className="graphic-circle"><Columns3 size={20}/></div><span>Sprint & Kanban</span><ArrowRight size={17}/></div></div></div>
- <div className="auth-form-side"><form className="auth-card" onSubmit={submit}><div className="auth-overline">WELCOME TO DEVPILOT</div><h2>{mode==='login'?'Chào mừng trở lại':'Tạo tài khoản'}</h2><p className="subtext">{mode==='login'?'Đăng nhập để tiếp tục quản lý dự án của bạn.':'Bắt đầu cùng đội ngũ phát triển của bạn.'}</p>{mode==='register'&&<label>Họ tên<input required maxLength={120} placeholder="Nguyễn Văn A" value={form.name} onChange={e=>setForm({...form,name:e.target.value})}/></label>}<label>Email<input required type="email" placeholder="email@example.com" value={form.email} onChange={e=>setForm({...form,email:e.target.value})}/></label><label>Mật khẩu<input required type="password" minLength={mode==='register'?8:1} placeholder="••••••••" value={form.password} onChange={e=>setForm({...form,password:e.target.value})}/></label>{error&&<div className="error-box"><AlertCircle size={16}/>{error}</div>}<button disabled={busy} className="btn primary full" type="submit">{busy?'Đang xử lý...':mode==='login'?'Đăng nhập':'Tạo tài khoản'} <ArrowRight size={18}/></button><p className="auth-toggle">{mode==='login'?'Chưa có tài khoản?':'Đã có tài khoản?'} <button type="button" onClick={()=>{setError('');setMode(mode==='login'?'register':'login')}}>{mode==='login'?'Đăng ký ngay':'Đăng nhập'}</button></p></form></div></div>
 }
 function PageTitle({eyebrow,title,subtitle,actions}){return <div className="page-heading"><div><span className="eyebrow">{eyebrow}</span><h1>{title}</h1><p>{subtitle}</p></div>{actions&&<div className="heading-actions">{actions}</div>}</div>}
 function Panel({title,subtitle,children,action,className=''}){return <section className={'panel '+className}><div className="panel-header"><div><h3>{title}</h3>{subtitle&&<p>{subtitle}</p>}</div>{action}</div>{children}</section>}
@@ -112,11 +128,82 @@ function Status({value}){return <span className={'status status-'+(value||'').to
 function Priority({value}){return <span className={'priority priority-'+(value||'').toLowerCase()}>{priorities[value]||value}</span>}
 function Dashboard({project,data,counts,navigate,projects,changeProject}){
  const progress=counts.tasks?Math.round(counts.done/counts.tasks*100):0;
- const recent=data.requirements.slice(0,5);return <><PageTitle eyebrow="PROJECT OVERVIEW" title={'Xin chào, '+project.name+' 👋'} subtitle="Theo dõi tiến độ dự án và quản lý vòng đời phát triển phần mềm." actions={<select className="control select-project" value={project.id} onChange={e=>changeProject(Number(e.target.value))}>{projects.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</select>}/>
- <div className="stats-grid"><Stat icon={FileText} label="Requirements" value={counts.requirements}/><Stat icon={GitBranch} label="User Stories" value={counts.stories} tone="purple"/><Stat icon={ClipboardList} label="Tổng Task" value={counts.tasks} tone="orange"/><Stat icon={CheckCircle2} label="Đã hoàn thành" value={counts.done} tone="green"/></div>
- <div className="dash-grid"><Panel title="Sprint Progress" subtitle="Tiến độ công việc trên toàn dự án" action={<Target size={20} className="subtle-icon"/>}><div className="progress-big">{progress}<span>%</span></div><div className="progress-track"><div style={{width:progress+'%'}}/></div><div className="progress-meta"><span>{counts.done} task đã hoàn thành</span><span>{counts.tasks-counts.done} task còn lại</span></div><div className="divider-space"/><h4>Trạng thái công việc</h4>{['TODO','IN_PROGRESS','REVIEW','DONE'].map(s=><div key={s} className="count-row"><Status value={s}/><strong>{data.tasks.filter(t=>t.status===s).length}</strong></div>)}</Panel>
- <Panel title="Requirements gần đây" subtitle="Các yêu cầu được cập nhật trong dự án" action={<button className="text-link" onClick={()=>navigate('requirements')}>Xem tất cả <ArrowRight size={16}/></button>}>{!recent.length?<Empty icon={FileText} title="Chưa có yêu cầu" subtitle="Hãy thêm Requirement để bắt đầu."/>:<div className="mini-list">{recent.map(r=><div className="mini-item" key={r.id}><div className="tiny-icon"><FileText size={17}/></div><div className="mini-item-content"><strong>{r.title}</strong><span>REQ-{String(r.id).padStart(3,'0')} · {niceDate(r.createdAt)}</span></div><Status value={r.status}/></div>)}</div>}</Panel></div>
- <div className="quick-actions"><div><h3>Đẩy nhanh công việc với AI <Sparkles size={20}/></h3><p>Biến Requirement thành User Story, Acceptance Criteria và tra cứu tài liệu dự án.</p></div><button className="btn light" onClick={()=>navigate('requirements')}>Bắt đầu với Requirement <ArrowRight size={17}/></button></div></>}
+ const recent=[...data.requirements].sort((a,b)=>new Date(b.updatedAt||b.createdAt||0)-new Date(a.updatedAt||a.createdAt||0)).slice(0,5);
+ const stages=[
+  {key:'TODO',label:'Chờ thực hiện',color:'var(--studio-ink)'},
+  {key:'IN_PROGRESS',label:'Đang triển khai',color:'var(--studio-blue)'},
+  {key:'REVIEW',label:'Kiểm tra',color:'var(--studio-orange)'},
+  {key:'DONE',label:'Hoàn tất',color:'var(--studio-mint)'}
+ ];
+ const stageCounts=stages.map(s=>({...s,count:data.tasks.filter(t=>t.status===s.key).length}));
+ const metrics=[
+  {label:'Yêu cầu',value:counts.requirements,icon:FileText,detail:'Phạm vi sản phẩm',target:'requirements'},
+  {label:'User Stories',value:counts.stories,icon:GitBranch,detail:'Góc nhìn người dùng',target:'stories'},
+  {label:'Công việc',value:counts.tasks,icon:ClipboardList,detail:'Lượng việc toàn dự án',target:'board'},
+  {label:'Đã hoàn thành',value:counts.done,icon:CheckCircle2,detail:'Được ghi nhận là Done',target:'board'}
+ ];
+ return <div className="studio-dashboard">
+  <div className="studio-dashboard-overline"><span><CircleDot size={13}/> PROJECT / CONTROL CENTER</span><span className="studio-current-date">{new Date().toLocaleDateString('vi-VN',{day:'2-digit',month:'long',year:'numeric'})}</span></div>
+  <section className="studio-hero" aria-labelledby="studio-hero-title">
+   <div className="studio-hero-copy">
+    <div className="studio-hero-tag"><span className="studio-status-pulse"/> KHÔNG GIAN DỰ ÁN <span className="studio-hero-index">/ 01</span></div>
+    <h1 id="studio-hero-title">Xây đúng thứ.<br/><em>Đi đúng hướng.</em></h1>
+    <p>Biến những ý tưởng phức tạp thành sản phẩm rõ ràng. Mọi yêu cầu, tiến độ và quyết định AI — trong một không gian làm việc.</p>
+    <div className="studio-hero-cta">
+     <button type="button" className="studio-btn-lime" onClick={()=>navigate('ai-conflicts')}>Khám phá AI Intelligence <ArrowUpRight size={18}/></button>
+     <button type="button" className="studio-btn-outline" onClick={()=>navigate('board')}>Xem Kanban <MoveRight size={17}/></button>
+    </div>
+   </div>
+   <div className="studio-hero-visual" aria-label="Bản tóm tắt tiến độ dự án">
+    <div className="studio-hero-visual-top"><span>DEVPILOT / FLOW MAP</span><span>LIVE DATA <i/></span></div>
+    <div className="studio-orbit">
+     <div className="studio-orbit-ring ring-outer"/><div className="studio-orbit-ring ring-inner"/>
+     <div className="studio-orbit-hub"><span>PROJECT</span><strong>{String(progress).padStart(2,'0')}<small>%</small></strong><i>COMPLETE</i></div>
+     <div className="studio-orbit-point point-1"><FileText size={16}/></div>
+     <div className="studio-orbit-point point-2"><GitBranch size={16}/></div>
+     <div className="studio-orbit-point point-3"><CheckCircle2 size={16}/></div>
+    </div>
+    <div className="studio-hero-visual-bottom"><span>PLAN</span><b>→</b><span>BUILD</span><b>→</b><span>VALIDATE</span><b>→</b><span>SHIP</span></div>
+   </div>
+   <div className="studio-hero-corner">D<span>·</span>P</div>
+  </section>
+  <div className="studio-project-rail">
+   <div className="studio-project-current"><span className="studio-mono-label">ĐANG THEO DÕI</span><strong title={project.name}>{project.name}</strong></div>
+   <label className="studio-project-select">CHUYỂN DỰ ÁN <select value={project.id} onChange={e=>changeProject(Number(e.target.value))}>{projects.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</select></label>
+  </div>
+  <section className="studio-metrics" aria-label="Chỉ số dự án">
+   {metrics.map((metric,i)=><button type="button" className="studio-metric" key={metric.label} onClick={()=>navigate(metric.target)} title={'Mở '+metric.label}>
+    <div className="studio-metric-top"><span className="studio-metric-number">0{i+1} / METRIC</span><metric.icon size={19} strokeWidth={1.8}/></div>
+    <div className="studio-metric-value">{String(metric.value).padStart(2,'0')}</div>
+    <div className="studio-metric-bottom"><div><strong>{metric.label}</strong><small>{metric.detail}</small></div><ArrowUpRight size={17}/></div>
+   </button>)}
+  </section>
+  <div className="studio-section-line"><div><span className="studio-mono-label">02 / MOMENTUM</span><h2>Toàn cảnh hoạt động</h2></div><span className="studio-section-aside">SỐ LIỆU ĐƯỢC CẬP NHẬT TỪ DỰ ÁN</span></div>
+  <div className="studio-insights">
+   <section className="studio-insight-card studio-progress-card">
+    <div className="studio-card-header"><div><span className="studio-mono-label">DELIVERY / 01</span><h3>Nhịp độ phát triển</h3></div><Target size={19}/></div>
+    <div className="studio-progress-body"><div className="studio-progress-gauge" style={{'--studio-progress':progress+'%'}}><div className="studio-progress-gauge-inner"><strong>{progress}<span>%</span></strong><small>COMPLETE</small></div></div><div className="studio-progress-copy"><span>TRẠNG THÁI HIỆN TẠI</span><strong>{counts.tasks===0?'Sẵn sàng bắt đầu':progress===100?'Đã hoàn thành':'Đang tiến hành'}</strong><p>{counts.tasks===0?'Thêm công việc vào Kanban để bắt đầu theo dõi tiến độ.':`${counts.done} trên ${counts.tasks} công việc đã hoàn thành.`}</p><button type="button" onClick={()=>navigate('sprints')}>Mở quản lý Sprint <ArrowUpRight size={16}/></button></div></div>
+    <div className="studio-stage-track" role="img" aria-label={'Phân bố '+counts.tasks+' công việc theo trạng thái'}>{counts.tasks?stageCounts.filter(s=>s.count).map(s=><div key={s.key} title={`${s.label}: ${s.count}`} style={{width:(100*s.count/counts.tasks)+'%',background:s.color}}/>):<div style={{width:'100%',background:'var(--studio-hairline)'}}/>}</div>
+    <div className="studio-stage-legend">{stageCounts.map(s=><div key={s.key}><i style={{background:s.color}}/><span>{s.label}</span><b>{s.count}</b></div>)}</div>
+   </section>
+   <section className="studio-insight-card studio-requirements-card">
+    <div className="studio-card-header"><div><span className="studio-mono-label">REQUIREMENTS / 02</span><h3>Dòng yêu cầu mới nhất</h3></div><button type="button" className="studio-link-btn" onClick={()=>navigate('requirements')}>Xem tất cả <ArrowUpRight size={16}/></button></div>
+    <div className="studio-recent-list">{recent.length?recent.map((r,i)=><button type="button" className="studio-recent-row" key={r.id} onClick={()=>navigate('requirements')}><span className="studio-recent-index">{String(i+1).padStart(2,'0')}</span><div><strong>{r.title}</strong><small>REQ-{String(r.id).padStart(3,'0')} {r.createdAt?'· '+niceDate(r.createdAt):''}</small></div><Status value={r.status}/><ArrowUpRight className="studio-recent-arrow" size={16}/></button>):<div className="studio-recent-empty"><FileText size={24}/><strong>Không gian cho ý tưởng đầu tiên.</strong><p>Chưa có yêu cầu nào. Tạo Requirement để biến ý tưởng thành kế hoạch rõ ràng.</p><button type="button" onClick={()=>navigate('requirements')}>Tạo Requirement <ArrowRight size={16}/></button></div>}</div>
+    <div className="studio-card-footer"><span>{data.requirements.length} REQUIREMENTS IN TOTAL</span><span>DEV → PILOT / {new Date().getFullYear()}</span></div>
+   </section>
+  </div>
+  <div className="studio-section-line studio-toolkit-heading"><div><span className="studio-mono-label">03 / INTELLIGENCE</span><h2>AI đồng hành trong từng quyết định.</h2></div><span className="studio-section-aside">3 CÔNG CỤ AI CHUYÊN SÂU</span></div>
+  <div className="studio-ai-tools">
+   {[
+     {code:'AI / 01',title:'Phát hiện xung đột',description:'Phát hiện các yêu cầu mâu thuẫn, trùng lặp và điểm thiếu nhất quán.',icon:ScanSearch,page:'ai-conflicts',color:'violet'},
+     {code:'AI / 02',title:'Mô phỏng thay đổi',description:'Thấy trước tác động đến Story, Task và Sprint trước khi quyết định.',icon:GitCompareArrows,page:'ai-impact',color:'peach'},
+     {code:'AI / 03',title:'Truy vết bàn giao',description:'Theo dõi hành trình từ yêu cầu đến những điều kiện sẵn sàng release.',icon:Route,page:'ai-traceability',color:'mint'}
+   ].map(tool=><button type="button" className={'studio-tool studio-tool-'+tool.color} key={tool.code} onClick={()=>navigate(tool.page)}><span className="studio-tool-top"><span>{tool.code}</span><ArrowUpRight size={18}/></span><span className="studio-tool-icon"><tool.icon size={29} strokeWidth={1.5}/></span><strong>{tool.title}</strong><span className="studio-tool-description">{tool.description}</span><span className="studio-tool-bottom">KHÁM PHÁ CÔNG CỤ <MoveRight size={17}/></span></button>)}
+  </div>
+  <button type="button" className="studio-knowledge-strip" onClick={()=>navigate('documents')}><span className="studio-knowledge-symbol"><BookOpen size={23}/></span><span className="studio-knowledge-copy"><small>RESEARCH ENGINE / RAG KNOWLEDGE</small><strong>Từ tài liệu đến câu trả lời có dẫn chứng.</strong></span><span className="studio-knowledge-cta">Mở AI Research <ArrowUpRight size={18}/></span></button>
+  <div className="studio-dashboard-footer"><span>DEVPILOT / ENGINEERING INTELLIGENCE</span><span>DESIGNED FOR CLARITY. BUILT FOR PROGRESS.</span></div>
+ </div>
+}
 function Requirements({data,busy,mutate}){
  const [selected,setSelected]=useState(null);const [editing,setEditing]=useState(false);const [search,setSearch]=useState('');const [analysis,setAnalysis]=useState(null);
  const current=data.requirements.find(r=>r.id===selected);
@@ -183,6 +270,39 @@ function Documents({data,busy,api,mutate,projectId,reload,notify,call,token}){
   </div>
  </>;
 }
-function Members({data,project,session,mutate}){const [email,setEmail]=useState('');const isOwner=project.ownerId===session.user.id||session.user?.role==='ADMIN';return <><PageTitle eyebrow="PROJECT TEAM" title="Thành viên dự án" subtitle="Chia sẻ dự án để cùng quản lý yêu cầu và công việc."/>{isOwner&&<div className="panel members-invite"><div><h3>Thêm thành viên</h3><p>Thành viên cần đăng ký tài khoản trước bằng email này.</p></div><form onSubmit={async(e)=>{e.preventDefault();const r=await mutate('/members','POST',{email});if(r)setEmail('')}}><input required type="email" placeholder="email@company.com" value={email} onChange={e=>setEmail(e.target.value)}/><button className="btn primary"><Plus size={16}/> Mời thành viên</button></form></div>}<Panel title="Danh sách thành viên" subtitle={data.members.length+' người trong dự án'}><div className="member-list">{data.members.map(m=><div className="member" key={m.userId}><div className="avatar big">{m.name?.[0]?.toUpperCase()||'U'}</div><div className="member-name"><strong>{m.name}</strong><span>{m.email}</span></div><span className="role-pill">{m.role==='OWNER'?'Chủ dự án':'Thành viên'}</span></div>)}</div></Panel></>}
+function Members({data,project,session,mutate}) {
+ const [email,setEmail]=useState('');
+ const [newRole,setNewRole]=useState('MEMBER');
+ const canManage=project.ownerId===session.user.id||session.user?.role==='ADMIN';
+ const roleLabels={OWNER:'Chủ dự án',MEMBER:'Thành viên chỉnh sửa',VIEWER:'Chỉ xem'};
+ return <>
+  <PageTitle eyebrow="PROJECT TEAM" title="Thành viên & phân quyền" subtitle="JWT xác định tài khoản; Backend kiểm tra quyền từ database trong từng yêu cầu."/>
+  {canManage&&<div className="panel members-invite">
+   <div><h3>Mời thành viên</h3><p>Người được mời cần đăng ký tài khoản trước khi tham gia dự án.</p></div>
+   <form onSubmit={async(e)=>{e.preventDefault();const r=await mutate('/members','POST',{email,role:newRole});if(r)setEmail('')}}>
+    <input required type="email" placeholder="email@company.com" value={email} onChange={e=>setEmail(e.target.value)}/>
+    <select className="dp-member-role-select" aria-label="Quyền thành viên mới" value={newRole} onChange={e=>setNewRole(e.target.value)}>
+     <option value="MEMBER">Chỉnh sửa</option><option value="VIEWER">Chỉ xem</option>
+    </select>
+    <button className="btn primary" type="submit"><Plus size={16}/> Thêm thành viên</button>
+   </form>
+  </div>}
+  <Panel title="Phân quyền dự án" subtitle={`${data.members.length} thành viên · Quyền được kiểm tra ở Backend`}>
+   <div className="member-list">{data.members.map(m=><div className="member" key={m.userId}>
+    <div className="avatar big">{m.name?.[0]?.toUpperCase()||'U'}</div>
+    <div className="member-name"><strong>{m.name}</strong><span>{m.email}</span></div>
+    {canManage&&m.userId!==project.ownerId?
+     <div className="dp-member-tools">
+      <select className="dp-member-role-select" aria-label={`Quyền của ${m.name}`} value={m.role==='VIEWER'?'VIEWER':'MEMBER'} onChange={e=>mutate(`/members/${m.userId}/role`,'PUT',{role:e.target.value})}>
+       <option value="MEMBER">Chỉnh sửa</option><option value="VIEWER">Chỉ xem</option>
+      </select>
+      <button type="button" className="dp-member-remove" onClick={()=>{if(window.confirm(`Xóa ${m.name} khỏi dự án?`))mutate(`/members/${m.userId}`,'DELETE')}}>Xóa</button>
+     </div>
+    :<span className="role-pill">{roleLabels[m.role]||'Thành viên'}</span>}
+   </div>)}</div>
+  </Panel>
+ </>;
+}
+
 
 createRoot(document.getElementById('root')).render(<App/>);

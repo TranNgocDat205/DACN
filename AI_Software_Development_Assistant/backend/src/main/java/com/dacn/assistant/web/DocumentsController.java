@@ -18,7 +18,7 @@ public class DocumentsController {
   @GetMapping("/documents") public List<Document> list(@PathVariable Long projectId){access.require(projectId);return documents.findByProjectIdOrderByCreatedAtDesc(projectId);}
   @PostMapping(value="/documents",consumes=MediaType.MULTIPART_FORM_DATA_VALUE)
   public Document upload(@PathVariable Long projectId,@RequestParam("file") MultipartFile file) throws IOException {
-    access.require(projectId);
+    access.write(projectId);
     String name=Optional.ofNullable(file.getOriginalFilename()).orElse("file").replace('\\','/');name=name.substring(name.lastIndexOf('/')+1);
     if(file.isEmpty()||file.getSize()>10*1024*1024)throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"File must be nonempty, <= 10MB");
     if(name.length()>255||!name.toLowerCase(Locale.ROOT).matches(".*\\.(pdf|docx|txt|md)$"))throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Only PDF, DOCX, TXT and MD accepted");
@@ -26,7 +26,7 @@ public class DocumentsController {
     Document doc=new Document();doc.projectId=projectId;doc.filename=name;doc.externalId=String.valueOf(result.get("document_id"));doc.chunkCount=((Number)result.getOrDefault("chunks",0)).intValue();doc.uploadedBy=auth.currentUser();
     return documents.save(doc);
   }
-  @DeleteMapping("/documents/{id}") public void delete(@PathVariable Long projectId,@PathVariable Long id){
+  @DeleteMapping("/documents/{id}") public void delete(@PathVariable Long projectId,@PathVariable Long id){access.write(projectId);
     access.require(projectId);Document doc=documents.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND));access.ensure(projectId.equals(doc.projectId));
     ai.deleteDoc(projectId,doc.externalId);documents.delete(doc);
   }
@@ -50,7 +50,7 @@ public class DocumentsController {
   }
   record OfficialWebImport(String url) {}
   @PostMapping("/official-sources/import-url")
-  public Document importOfficialUrl(@PathVariable Long projectId,@RequestBody OfficialWebImport input){
+  public Document importOfficialUrl(@PathVariable Long projectId,@RequestBody OfficialWebImport input){access.write(projectId);
     access.require(projectId);
     String url=input==null?null:input.url();
     if(url==null||url.length()>800||!url.startsWith("https://"))
@@ -80,7 +80,7 @@ public class DocumentsController {
     return documents.save(doc);
   }
   @PostMapping("/official-sources/import")
-  public Document importOfficial(@PathVariable Long projectId,@RequestBody OfficialImport input){
+  public Document importOfficial(@PathVariable Long projectId,@RequestBody OfficialImport input){access.write(projectId);
     access.require(projectId);
     if(input==null||input.sourceId()==null||!input.sourceId().matches("[a-z0-9-]{1,80}"))
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Invalid official source ID");
