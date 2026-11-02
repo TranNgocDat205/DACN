@@ -1,0 +1,154 @@
+/* All presentation rules are scoped to the Lucian u005 element. Theme tokens
+   are mapped to DevPilot's existing light/dark variables; no global overrides. */
+.u005 {
+  --ux-surface:var(--mc-surface, #fff);
+  --ux-surface-2:var(--mc-field, #f5f3ef);
+  --ux-ink:var(--mc-text, #16151b);
+  --ux-ink-3:var(--mc-faint, #8e8a97);
+  --ux-line:var(--mc-stroke, rgba(22,21,27,.09));
+  --ux-accent:var(--mc-purple, #6a57f2);
+  --ux-accent-2:var(--signal, #2f8fe0);
+  --ux-spring:cubic-bezier(.34,1.45,.64,1);
+  position:relative;display:flex;align-items:center;flex-wrap:wrap;gap:9px;
+  isolation:isolate;overflow:visible;
+}
+.u005, .u005 *,.u005 *::before,.u005 *::after{box-sizing:border-box}
+.u005 .u005-option{flex:0 0 100%;margin:0 0 2px;position:relative;z-index:3}
+.u005 .u005-cp{
+  display:flex;align-items:center;gap:8px;flex:1;min-width:0;
+  padding:5px 5px 5px 16px;border-radius:999px;
+  background:var(--ux-surface-2);
+  box-shadow:inset 0 0 0 1px var(--ux-line);
+  position:relative;z-index:3;
+  transition:box-shadow .24s ease;
+}
+.u005 .u005-cp:focus-within{box-shadow:inset 0 0 0 1px var(--ux-accent),0 0 0 3px color-mix(in srgb,var(--ux-accent) 14%,transparent)}
+.u005 .u005-in,.u005 .u005-in:focus{
+  flex:1;min-width:0;height:42px;min-height:42px;background:transparent!important;
+  border:0!important;outline:0!important;box-shadow:none!important;
+  color:var(--ux-ink)!important;font:inherit;font-size:14px;padding:0;
+}
+
+/* Existing Mission Control selectors use !important on generic chat inputs.
+   Override them only inside this component to keep the pill seamless. */
+#root .app-shell.dp-studio .u005 .u005-in,
+#root .app-shell.dp-next .u005 .u005-in {
+  background:transparent!important;border:0!important;border-radius:0!important;
+  box-shadow:none!important;padding:0!important;color:var(--ux-ink)!important;
+}
+
+.u005 .u005-in::placeholder{color:var(--ux-ink-3);opacity:1}
+.u005 .u005-btn{
+  display:grid;place-items:center;position:relative;flex:0 0 42px;width:42px;height:42px;
+  border:0;border-radius:50%;padding:0;color:#fff;
+  background:linear-gradient(140deg,#7b61ff,#3d8bff);
+  box-shadow:0 8px 16px -8px #4f5bff;
+  cursor:pointer;transition:transform .35s var(--ux-spring),background .35s,opacity .25s;
+}
+.u005 .u005-btn:active:not(:disabled){transform:scale(.9)}
+.u005 .u005-btn:focus-visible{outline:2px solid var(--ux-accent);outline-offset:4px}
+.u005 .u005-btn:disabled{cursor:default;opacity:.65}
+.u005 .u005-pl{width:24px;height:22px;transform:translate(-1px,1px) rotate(-18deg);transition:transform .45s var(--ux-spring),opacity .2s}
+.u005[data-phase="fly"] .u005-pl,.u005[data-phase="wait"] .u005-pl{opacity:0;transform:translate(10px,-10px) rotate(-30deg) scale(.6)}
+.u005[data-phase="back"] .u005-pl{animation:u005-back .6s cubic-bezier(.2,1.2,.4,1) both}
+@keyframes u005-back{from{opacity:0;transform:translate(-26px,14px) rotate(10deg) scale(.7)}}
+.u005 .u005-rg{position:absolute;inset:-4px;width:50px;height:50px;transform:rotate(-90deg);opacity:0}
+.u005 .u005-rg circle{fill:none;stroke:#9c87ff;stroke-width:2.5;stroke-linecap:round;stroke-dasharray:145;stroke-dashoffset:145}
+.u005[data-phase="fly"] .u005-rg,.u005[data-phase="wait"] .u005-rg{opacity:1}
+.u005[data-phase="fly"] .u005-rg circle,.u005[data-phase="wait"] .u005-rg circle{animation:u005-ring 1.5s cubic-bezier(.4,0,.3,1) both}
+@keyframes u005-ring{to{stroke-dashoffset:0}}
+.u005 .u005-ck{position:absolute;width:20px;height:20px;fill:none;stroke:#fff;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;opacity:0;stroke-dasharray:24;stroke-dashoffset:24}
+.u005[data-phase="done"] .u005-btn{background:linear-gradient(140deg,#37b24d,#20c997);box-shadow:0 8px 16px -8px #2b8a3e}
+.u005[data-phase="error"] .u005-btn{background:linear-gradient(140deg,#d93a55,#ef6877)}
+.u005[data-phase="done"] .u005-ck,.u005[data-phase="error"] .u005-ck{opacity:1;animation:u005-tick .35s .05s both}
+.u005[data-phase="done"] .u005-pl,.u005[data-phase="error"] .u005-pl{opacity:0}
+@keyframes u005-tick{to{stroke-dashoffset:0}}
+/* Full-panel SVG overlay: visible over the messages, but never intercepts taps. */
+.u005.u005-flight-layer{
+  position:absolute;inset:0;z-index:25;display:block;pointer-events:none;
+  margin:0;padding:0;overflow:hidden;background:transparent!important;
+  width:100%;height:100%;border:0;box-shadow:none;
+}
+.u005 .u005-flight-svg{position:absolute;inset:0;width:100%;height:100%;overflow:hidden}
+.u005 .u005-flight-route{
+  fill:none;stroke:var(--ux-accent);stroke-width:2.5;stroke-linecap:round;
+  stroke-dasharray:3 9;opacity:.95;filter:drop-shadow(0 0 5px var(--ux-accent));
+}
+.u005 .u005-flight-plane{
+  filter:drop-shadow(0 3px 9px rgba(80,70,205,.48));
+}
+.u005 .u005-feedback{
+  position:absolute;right:22px;bottom:calc(100% - 12px);z-index:8;
+  background:var(--ux-surface);border:1px solid var(--ux-line);
+  border-radius:999px;padding:5px 11px;font-size:11px;font-weight:700;
+  color:var(--ux-ink);box-shadow:0 4px 14px rgba(0,0,0,.09);
+  pointer-events:none;
+}
+.u005 .u005-feedback:empty{display:none}
+.u005 .u005-shake{animation:u005-sh .4s ease}
+@keyframes u005-sh{25%{transform:translateX(-6px)}50%{transform:translateX(5px)}75%{transform:translateX(-3px)}}
+.u005 .u005-announcer{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+@media (max-width:540px){
+  .u005 .u005-in{font-size:13px}
+  .u005 .u005-cp{padding-left:12px}
+  .u005 .u005-feedback{right:11px;font-size:10px}
+  .u005 .u005-option{font-size:12px}
+}
+@media (prefers-reduced-motion:reduce){
+  .u005 *, .u005 *::before,.u005 *::after{
+    animation-duration:.001ms!important;animation-iteration-count:1!important;
+    transition-duration:.001ms!important;
+  }
+  .u005.u005-flight-layer{display:none}
+}
+
+/* V8: flight is portaled directly under document.body, outside all app-shell
+   overflow and stacking contexts. It is now impossible for the chat card to
+   crop the plane on desktop or mobile. */
+body > .u005.u005-flight-layer {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100dvh !important;
+  z-index: 2147483000 !important;
+  pointer-events: none !important;
+  overflow: visible !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+  opacity: 1 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+body > .u005.u005-flight-layer .u005-flight-svg {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+body > .u005.u005-flight-layer .u005-flight-route {
+  stroke: #a88bff;
+  stroke-width: 3.5;
+  stroke-dasharray: 3 8;
+  opacity: 1;
+  filter: drop-shadow(0 0 7px #8173ff);
+}
+body > .u005.u005-flight-layer .u005-flight-plane {
+  filter: drop-shadow(0 0 5px #fff) drop-shadow(0 4px 11px #6554e9);
+}
+/* Keep a visible progress ring even if the back-end takes longer than 1.5s. */
+.u005[data-phase="wait"] .u005-rg circle {
+  stroke-dashoffset: 36;
+  animation: u005-ring-wait 1.2s linear infinite;
+}
+@keyframes u005-ring-wait {
+  0% { stroke-dashoffset: 36; transform: rotate(0deg); transform-origin: center; }
+  100% { stroke-dashoffset: 36; transform: rotate(360deg); transform-origin: center; }
+}
+/* The animation is skipped only when the OS requests reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  body > .u005.u005-flight-layer { display: none !important; }
+  .u005[data-phase="wait"] .u005-rg circle { animation: none !important; }
+}

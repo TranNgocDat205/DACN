@@ -7,6 +7,8 @@ import {
   Zap
 } from 'lucide-react';
 import SignalAtlas from './SignalAtlas.jsx';
+import { AnimatedMetric, HoloReactor } from './PremiumMotion.jsx';
+import NexusObservatory from './NexusObservatory.jsx';
 
 /**
  * DevPilot / Mission Control — project-native dashboard.
@@ -67,6 +69,8 @@ export default function MissionControl({ project, data, counts, navigate, projec
   return <div className="mc" aria-label="DevPilot Mission Control">
     <div className="mc-kicker"><span><span className="mc-led"/> WORKSPACE / CONTROL DECK <span className="mc-kicker-slash">/</span> 01</span><span className="mc-kicker-date">{formattedDate}</span></div>
 
+    <NexusObservatory project={project} data={data} aiStatus={aiStatus} navigate={navigate} />
+
     <section className="mc-hero" aria-labelledby="mc-title">
       <div className="mc-hero-aura" aria-hidden="true"/>
       <div className="mc-hero-left">
@@ -77,9 +81,9 @@ export default function MissionControl({ project, data, counts, navigate, projec
           <button className="mc-primary" type="button" onClick={()=>navigate('ai-conflicts')}><WandSparkles size={17}/> Khám phá AI <ArrowUpRight size={17}/></button>
           <button className="mc-link-hero" type="button" onClick={()=>navigate('board')}>Mở Kanban <ArrowRight size={17}/></button>
         </div>
-        <div className="mc-hero-footer"><span className="mc-live-badge"><span/> {connected?'AI ENGINE CONNECTED':'WORKSPACE READY'}</span><span>DEV → PILOT / V3.0</span></div>
+        <div className="mc-hero-footer"><span className="mc-live-badge"><span/> {connected?'AI ENGINE CONNECTED':'WORKSPACE READY'}</span><span>NEXUS / V7.0</span></div>
       </div>
-      <div className="mc-hero-right" aria-label={`Luồng phát triển và tiến độ ${progress}%`}>
+      <div className="mc-hero-right dp-tilt" aria-label={`Luồng phát triển và tiến độ ${progress}%`}>
         <div className="mc-orbit-top"><span>01 / SYSTEM TOPOLOGY</span><span className="mc-orbit-top-right">LIVE PROJECT DATA <span/></span></div>
         <div className="mc-topology">
           <svg className="mc-connections" viewBox="0 0 600 360" aria-hidden="true" preserveAspectRatio="xMidYMid meet">
@@ -101,7 +105,7 @@ export default function MissionControl({ project, data, counts, navigate, projec
           <button type="button" className="mc-node mc-node-story" onClick={()=>navigate('stories')}><span className="mc-node-dot purple"/><small>02 / DESIGN</small><strong>{stories.length} <span>Stories</span></strong></button>
           <button type="button" className="mc-node mc-node-task" onClick={()=>navigate('board')}><span className="mc-node-dot purple"/><small>03 / BUILD</small><strong>{tasks.length} <span>Tasks</span></strong></button>
           <button type="button" className="mc-node mc-node-done" onClick={()=>navigate('board')}><span className="mc-node-dot coral"/><small>04 / SHIP</small><strong>{done} <span>Done</span></strong></button>
-          <div className="mc-topology-core" style={{'--mc-fill':`${progress}%`}}><div><small>DELIVERY</small><strong>{progress}<span>%</span></strong><span>PROJECT PROGRESS</span></div></div>
+          <div className="mc-topology-core dp-reactor" style={{'--mc-fill':`${progress}%`}}><HoloReactor progress={progress}/><div className="dp-reactor-data"><small>DELIVERY</small><strong>{progress}<span>%</span></strong><span>PROJECT PROGRESS</span></div></div>
         </div>
         <div className="mc-orbit-bottom"><span>SPECIFY</span><i/> <span>BUILD</span><i/><span>VALIDATE</span><i/><span>SHIP</span></div>
       </div>
@@ -115,9 +119,9 @@ export default function MissionControl({ project, data, counts, navigate, projec
         {name:'User Stories',number:stories.length,desc:'Góc nhìn người dùng',page:'stories',icon:GitBranch,tone:'purple'},
         {name:'Total Tasks',number:tasks.length,desc:'Công việc đang quản lý',page:'board',icon:Boxes,tone:'coral'},
         {name:'Completed',number:done,desc:'Đã chuyển sang Done',page:'board',icon:CheckCircle2,tone:'yellow'}
-      ].map((m,i)=><button type="button" className={'mc-metric mc-tone-'+m.tone} key={m.name} onClick={()=>navigate(m.page)}>
+      ].map((m,i)=><button type="button" className={'mc-metric dp-tilt mc-tone-'+m.tone} key={m.name} onClick={()=>navigate(m.page)}>
         <div className="mc-metric-head"><span>0{i+1} / LIVE METRIC</span><m.icon size={18}/></div>
-        <div className="mc-metric-number">{String(m.number).padStart(2,'0')}<sup>↗</sup></div>
+        <div className="mc-metric-number"><AnimatedMetric value={m.number}/><sup>↗</sup></div>
         <div className="mc-metric-bottom"><div><strong>{m.name}</strong><span>{m.desc}</span></div><ArrowUpRight size={17}/></div>
       </button>)}
     </div>
@@ -152,7 +156,7 @@ export default function MissionControl({ project, data, counts, navigate, projec
         {num:'01',kicker:'DETECT',title:'AI phát hiện xung đột',body:'Tìm những yêu cầu trùng lặp, mâu thuẫn và điểm thiếu nhất quán.',page:'ai-conflicts',icon:ScanSearch,foot:'REQUIREMENTS INTELLIGENCE',cls:'mc-ai-mint'},
         {num:'02',kicker:'SIMULATE',title:'AI mô phỏng thay đổi',body:'Nhìn trước tác động đến Story, Task, Sprint trước khi thay đổi.',page:'ai-impact',icon:Split,foot:'CHANGE IMPACT ENGINE',cls:'mc-ai-violet'},
         {num:'03',kicker:'TRACE',title:'AI truy vết bàn giao',body:'Kết nối yêu cầu với quá trình phát triển và điều kiện nghiệm thu.',page:'ai-traceability',icon:Network,foot:'RELEASE TRACEABILITY',cls:'mc-ai-coral'}
-      ].map(x=><button key={x.num} className={`mc-ai-card ${x.cls}`} type="button" onClick={()=>navigate(x.page)}><div className="mc-ai-card-top"><span>{x.num} / {x.kicker}</span><ArrowUpRight size={19}/></div><div className="mc-ai-card-icon"><x.icon size={29} strokeWidth={1.4}/></div><h3>{x.title}</h3><p>{x.body}</p><div className="mc-ai-card-bottom"><span>{x.foot}</span><ArrowRight size={18}/></div></button>)}
+      ].map(x=><button key={x.num} className={`mc-ai-card dp-tilt ${x.cls}`} type="button" onClick={()=>navigate(x.page)}><div className="mc-ai-card-top"><span>{x.num} / {x.kicker}</span><ArrowUpRight size={19}/></div><div className="mc-ai-card-icon"><x.icon size={29} strokeWidth={1.4}/></div><h3>{x.title}</h3><p>{x.body}</p><div className="mc-ai-card-bottom"><span>{x.foot}</span><ArrowRight size={18}/></div></button>)}
     </div>
     <button type="button" onClick={()=>navigate('documents')} className="mc-research-rail"><span className="mc-research-icon"><BookOpen size={21}/></span><span><small>04 / KNOWLEDGE ENGINE</small><strong>AI Research & RAG <i>—</i> biến tài liệu thành câu trả lời có dẫn chứng.</strong></span><span className="mc-research-trail"><span>{documents.length} TÀI LIỆU</span><ArrowUpRight size={19}/></span></button>
     <footer className="mc-footer"><span>DEVPILOT © {new Date().getFullYear()} / ENGINEERING INTELLIGENCE</span><span>BUILT FOR THE PEOPLE WHO BUILD.</span></footer>

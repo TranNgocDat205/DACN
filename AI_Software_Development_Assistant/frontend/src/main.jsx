@@ -17,6 +17,10 @@ import './studio-redesign.css';
 import MissionControl from './components/MissionControl.jsx';
 import CommandPalette from './components/CommandPalette.jsx';
 import './mission-control.css';
+import { MotionSurfaceController, AiActivityOrb } from './components/PremiumMotion.jsx';
+import './premium-experience.css';
+import './nexus-v7.css';
+import PaperPlaneComposer from './components/PaperPlaneComposer.jsx';
 
 const API = import.meta.env.VITE_API_URL || '/api';
 const displayStatus={DRAFT:'Bản nháp',ANALYZING:'Đang phân tích',APPROVED:'Đã duyệt',IN_DEVELOPMENT:'Đang phát triển',COMPLETED:'Hoàn thành',PLANNED:'Kế hoạch',ACTIVE:'Đang chạy',TODO:'Cần làm',IN_PROGRESS:'Đang làm',REVIEW:'Kiểm tra',DONE:'Hoàn tất'};
@@ -83,9 +87,10 @@ function App(){
  async function mutate(path,method,body){if(isProjectViewer){notify('Tài khoản chỉ có quyền xem dự án, không thể chỉnh sửa.','error');return null;}return await call(async()=>{const result=await api(`/projects/${projectId}${path}`,{method,body:body instanceof FormData?body:(body?JSON.stringify(body):undefined)});await reload();notify('Đã lưu thành công');return result})}
  function logout(){localStorage.removeItem('devpilot-session');setSession(null);setProjects([]);setProjectId(null);setAdminUserFilter(null);setData({requirements:[],stories:[],criteria:[],sprints:[],tasks:[],documents:[],members:[]});setPage('dashboard')}
  if(!session)return showAuth
-  ? <div className="u021-theme-root u021-auth-shell" data-theme={theme}><button className="lp-auth-back" type="button" onClick={()=>{setShowAuth(false);window.history.replaceState(null,'',window.location.pathname)}}>← Quay lại trang giới thiệu</button><div className="u021-auth-toggle"><DayNightSkySwitch theme={theme} onChange={setTheme}/></div><AuthExperience initialMode={authMode} onAuth={s=>{setSession(s);setPage(s.user?.role==='ADMIN'?'admin-overview':'dashboard');localStorage.setItem('devpilot-session',JSON.stringify(s))}} api={api}/></div>
+  ? <div className="u021-theme-root u021-auth-shell dp-premium-auth" data-theme={theme}><button className="lp-auth-back" type="button" onClick={()=>{setShowAuth(false);window.history.replaceState(null,'',window.location.pathname)}}>← Quay lại trang giới thiệu</button><div className="u021-auth-toggle"><DayNightSkySwitch theme={theme} onChange={setTheme}/></div><AuthExperience initialMode={authMode} onAuth={s=>{setSession(s);setPage(s.user?.role==='ADMIN'?'admin-overview':'dashboard');localStorage.setItem('devpilot-session',JSON.stringify(s))}} api={api}/></div>
   : <LandingPage theme={theme} onThemeChange={setTheme} onStart={()=>{setAuthMode('login');setShowAuth(true);window.history.replaceState(null,'', '#login');window.scrollTo(0,0);}} onRegister={()=>{setAuthMode('register');setShowAuth(true);window.history.replaceState(null,'', '#login');window.scrollTo(0,0);}} />;
- return <div className={'app-shell dp-studio u021-theme-root'+(isAdmin&&page.startsWith('admin-')?' admin-premium-mode':'')} data-theme={theme}>
+ return <div className={'app-shell dp-studio u021-theme-root dp-next'+(isAdmin&&page.startsWith('admin-')?' admin-premium-mode':'')} data-theme={theme}>
+  <MotionSurfaceController page={page} />
   <CompactSidebar
    isAdmin={isAdmin} adminTabs={adminTabs} tabs={tabs} page={page}
    onNavigate={setPage} projectName={project?.name} onCreateProject={()=>setShowProjectForm(true)}
@@ -94,7 +99,7 @@ function App(){
    onCloseMobile={()=>setMobileSideOpen(false)} onLogout={logout}
   />
   <main className="main-panel"><header className="topbar"><div className="top-left"><button className="mobile-menu icon-btn" aria-label="Mở menu" aria-expanded={mobileSideOpen} onClick={()=>setMobileSideOpen(v=>!v)}><Menu size={20}/></button><span className="topbar-workspace-label">DEVPILOT / STUDIO</span><span className="slash">/</span><b>{visibleTabs.find(t=>t[0]===page)?.[1]||'Tổng quan'}</b></div><div className="top-right"><button type="button" className="mc-command-trigger" onClick={()=>setCommandOpen(true)} aria-label="Tìm và chuyển nhanh, Ctrl K"><Search size={16}/><span>Tìm kiếm</span><kbd>Ctrl K</kbd></button><button type="button" className="studio-top-action" onClick={()=>setPage('documents')} title="Mở kho tài liệu và AI Web Search"><BookOpen size={15}/> Knowledge</button><DayNightSkySwitch theme={theme} onChange={setTheme}/><span className="online-dot"/> <span className="connected">{aiStatus?.status==='offline'?'AI offline':aiStatus?.llm_configured?'AI đã kết nối':'AI demo mode'}</span><div className="avatar">{session.user?.name?.[0]?.toUpperCase()||'U'}</div><span className="username">{session.user?.name} · {isAdmin?'Admin':'User'}</span></div></header>
-   <div className="main-content">
+   <div className="main-content" key={page}>
     {project && isProjectViewer && !page.startsWith('admin-') && <ProjectRoleNotice role="VIEWER" projectName={project.name}/>}
     {showProjectForm&&<Modal title="Tạo dự án mới" onClose={()=>setShowProjectForm(false)}><ProjectForm save={async(v)=>{const created=await call(()=>api('/projects',{method:'POST',body:JSON.stringify(v)}));if(created){setShowProjectForm(false);await reloadProjects();setProjectId(created.id);setPage('dashboard');notify('Đã tạo dự án')}}}/></Modal>}
     {page.startsWith('admin-')&&isAdmin?<AdminPremiumWorkspace mode={page.slice(6)} api={api} notify={notify} currentId={session.user.id} userFilter={adminUserFilter} setUserFilter={setAdminUserFilter} onNavigate={setPage} onOpenProject={id=>{setProjectId(id);setPage('dashboard')}} refreshProjects={reloadProjects}/>:!project?<EmptyProject onCreate={()=>setShowProjectForm(true)}/>:
@@ -230,9 +235,13 @@ function Documents({data,busy,api,mutate,projectId,reload,notify,call,token}){
  useEffect(()=>{setMessages([]);setIncludeOfficial(false)},[projectId]);
  async function submit(e){
   e.preventDefault();if(!question.trim()||busy)return;
-  const q=question.trim();setMessages(a=>[...a,{kind:'user',text:q}]);setQuestion('');
+  const q=question.trim();
+  setMessages(a=>[...a,{kind:'user',text:q}]);setQuestion('');
+  // Preserve the real project-scoped API and authentication. The animation
+  // resolves only after the server confirms delivery; errors never show a tick.
   const result=await call(()=>api(`/projects/${projectId}/chat`,{method:'POST',body:JSON.stringify({question:q,includeOfficialSources:includeOfficial})}));
   if(result)setMessages(a=>[...a,{kind:'ai',text:result.answer,sources:result.sources,mode:result.mode,warnings:result.warnings}]);
+  return !!result;
  }
  return <><PageTitle eyebrow="KNOWLEDGE BASE" title="Trợ lý AI & RAG" subtitle="Tra cứu tài liệu dự án và nguồn chính thống, trả lời có đường dẫn kiểm chứng."/>
   <div className="rag-layout">
@@ -250,8 +259,8 @@ function Documents({data,busy,api,mutate,projectId,reload,notify,call,token}){
     <OfficialRagSources projectId={projectId} api={api} documents={data.documents} onImported={reload} notify={notify}/>
     <div className="info-box"><Shield size={17}/><span>Chỉ tài liệu đã nhập vào dự án mới được lưu. Chế độ tra cứu trực tuyến chỉ đọc các trang trong tên miền được phê duyệt; tìm kiếm web mở rộng cần Tavily API key.</span></div>
    </Panel>
-   <div className="panel chat-panel"><div className="chat-header"><div className="chat-avatar"><Sparkles size={20}/></div><div><h3>Project Knowledge AI</h3><p>Tài liệu dự án + nguồn chính thống</p></div><span className="assistant-state"><i/> Ready</span></div>
-    <div className="chat-messages">{messages.length===0?<div className="chat-intro"><div className="chat-hero-icon"><Sparkles size={33}/></div><h3>Hỏi đáp có dẫn chứng</h3><p>Chọn tài liệu từ các nhà phát hành chính thức ở bên trái, hoặc bật tra cứu trực tuyến khi đặt câu hỏi.</p>
+   <div className="panel chat-panel"><div className="chat-header"><div className="chat-avatar"><AiActivityOrb busy={busy}/></div><div><h3>Project Knowledge AI</h3><p>Tài liệu dự án + nguồn chính thống</p></div><span className="assistant-state"><i/> {busy ? "Đang phân tích" : "Sẵn sàng"}</span></div>
+    <div className="chat-messages" aria-live="polite">{messages.length===0?<div className="chat-intro"><div className="chat-hero-icon"><AiActivityOrb busy={busy}/></div><h3>Hỏi đáp có dẫn chứng</h3><p>Chọn tài liệu từ các nhà phát hành chính thức ở bên trái, hoặc bật tra cứu trực tuyến khi đặt câu hỏi.</p>
      <div className="suggested-questions">{['NIST khuyến nghị gì về phát triển phần mềm an toàn?','OWASP hướng dẫn xác thực ra sao?','AI Software Testing best practices là gì?'].map(q=><button key={q} onClick={()=>setQuestion(q)}>{q}<ArrowRight size={14}/></button>)}</div></div>
      :messages.map((m,i)=><div key={i} className={'chat-message '+m.kind}><div className="bubble">{m.text}</div>
       {m.sources?.length>0&&<div className="source-list"><strong><BookOpen size={14}/> Nguồn tham khảo</strong>{m.sources.map((source,index)=><div key={index} className="source-item">[{index+1}] {source.document}{source.page?` · trang ${source.page}`:''} · đoạn {source.chunk}
@@ -260,12 +269,11 @@ function Documents({data,busy,api,mutate,projectId,reload,notify,call,token}){
       </div>)}</div>}
       {m.warnings?.length>0&&<div className="official-chat-warnings">{m.warnings.join(' · ')}</div>}
       {m.mode==='retrieval_only'&&<div className="muted hint">Chưa cấu hình API AI; đây là các đoạn trích từ tài liệu thực sự truy xuất được.</div>}
-     </div>)}</div>
-    <form className="chat-input" onSubmit={submit} style={{flexWrap:'wrap'}}>
-     <label className="official-checkbox" style={{flexBasis:'100%'}}><input type="checkbox" checked={includeOfficial} onChange={e=>setIncludeOfficial(e.target.checked)}/> Tra cứu trực tuyến từ tên miền chính thống (cần Tavily key để mở rộng ngoài danh mục)</label>
-     <input value={question} onChange={e=>setQuestion(e.target.value)} placeholder="Hỏi về yêu cầu, bảo mật, API, quy trình Sprint..." maxLength={3000}/>
-     <button className="send-btn" type="submit" disabled={busy||!question.trim()}><Send size={18}/></button>
-    </form>
+     </div>)}{busy&&<div className="dp-chat-typing" role="status"><AiActivityOrb busy/><span>DevPilot đang xử lý câu hỏi</span><span className="dp-typing-dots"><i/><i/><i/></span></div>}</div>
+    <PaperPlaneComposer
+     key={projectId} value={question} onChange={setQuestion} onSubmit={submit} disabled={busy}
+     includeOfficial={includeOfficial} onIncludeOfficialChange={setIncludeOfficial}
+    />
    </div>
   </div>
  </>;

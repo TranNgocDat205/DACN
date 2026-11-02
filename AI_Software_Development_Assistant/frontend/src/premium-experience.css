@@ -1,0 +1,523 @@
+/* ========================================================================
+   DEVPILOT / NEBULA — premium motion and depth layer
+   Presentation only. API, authentication, RBAC and routing stay unchanged.
+   No third-party animation dependency; no WebGL needed.
+   ======================================================================== */
+
+/* Unified foundation for all authenticated screens. */
+#root .app-shell.dp-next {
+  --dp-nebula:#080b16; --dp-panel:#111827; --dp-raised:#182138;
+  --dp-electric:#8585ff; --dp-cyan:#64deed; --dp-lavender:#b79cff;
+  --dp-line:rgba(171,193,244,.17); --dp-cloud:#f8faff;
+  --dp-glass:linear-gradient(146deg,rgba(32,42,70,.93),rgba(13,19,34,.96));
+  --mc-bg:#090d1b; --mc-surface:#141c30; --mc-surface-hi:#1c2740;
+  --mc-field:#151f33; --mc-stroke:#303b58; --mc-stroke-hi:#4a5979;
+  --mc-text:#f4f6ff; --mc-muted:#b1bdd4; --mc-faint:#8899b8;
+  --mc-purple:#aaa5ff; --mc-mint:#78e6da; --mc-coral:#ffb5b4;
+  --mc-yellow:#f9df9e; --mc-slate:#6682a2;
+  --studio-lime:#b9acff; --brand:#919aff; --brand-strong:#acb3ff;
+  --signal:#65e0e2;
+  background:#090d1b; color:var(--mc-text);
+}
+#root .app-shell.dp-next[data-theme='light'] {
+  --dp-nebula:#f2f5ff; --dp-panel:#fff; --dp-raised:#eef2ff;
+  --dp-electric:#525be0; --dp-cyan:#087fa4; --dp-lavender:#6255c2;
+  --dp-line:#dbe1f1; --dp-cloud:#16223b;
+  --dp-glass:linear-gradient(145deg,#fff,#f8faff);
+  --mc-bg:#f2f5ff; --mc-surface:#fff; --mc-surface-hi:#f4f6ff;
+  --mc-field:#f0f3fc; --mc-stroke:#dbe2f2; --mc-stroke-hi:#becbe4;
+  --mc-text:#18243b; --mc-muted:#53627d; --mc-faint:#667796;
+  --mc-purple:#565acf; --mc-mint:#087c81; --mc-coral:#a94358;
+  --mc-yellow:#8b6800; --mc-slate:#8ca0b9;
+  --studio-lime:#e4e0ff; --brand:#5059d8; --brand-strong:#4448b0;
+  --signal:#0e8297;
+  background:#f2f5ff;
+}
+#root .app-shell.dp-next .main-panel {
+  position:relative;
+  isolation:isolate;
+  background:var(--mc-bg);
+  min-width:0;
+}
+#root .app-shell.dp-next .main-panel::before {
+  content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(ellipse 520px 370px at 91% 2%,rgba(93,77,216,.12),transparent 78%),
+    radial-gradient(ellipse 480px 320px at 10% 26%,rgba(30,162,206,.07),transparent 75%),
+    linear-gradient(90deg,transparent 0,rgba(165,190,255,.018) 50%,transparent 100%);
+}
+#root .app-shell.dp-next .main-content {
+  position:relative;max-width:1880px;padding:29px clamp(17px,3vw,54px) 75px;
+  min-width:0;animation:dp-page-in .48s cubic-bezier(.2,.8,.2,1) both;
+}
+#root .app-shell.dp-next .topbar {
+  background:color-mix(in srgb,var(--mc-bg) 87%,transparent);
+  backdrop-filter:blur(22px) saturate(140%);
+  -webkit-backdrop-filter:blur(22px) saturate(140%);
+  border-bottom:1px solid var(--dp-line);
+  box-shadow:0 1px 0 rgba(142,154,252,.055);
+}
+#root .app-shell.dp-next .topbar-workspace-label{color:var(--dp-electric);letter-spacing:.09em}
+#root .app-shell.dp-next .top-left b{font-weight:750;color:var(--mc-text)}
+#root .app-shell.dp-next .mc-command-trigger,
+#root .app-shell.dp-next .studio-top-action {
+  border:1px solid var(--dp-line);
+  background:color-mix(in srgb,var(--mc-surface) 83%,transparent);
+  box-shadow:0 6px 18px rgba(0,0,0,.045);
+}
+#root .app-shell.dp-next .mc-command-trigger:hover,
+#root .app-shell.dp-next .studio-top-action:hover {
+  border-color:var(--dp-electric);box-shadow:0 0 0 3px rgba(132,131,255,.1);
+}
+#root .app-shell.dp-next .avatar {
+  background:linear-gradient(135deg,#7572f4,#8a5fe0 65%,#b58ce9);
+  box-shadow:0 4px 20px rgba(96,89,230,.32),inset 0 1px 0 #ffffff62;
+}
+#root .app-shell.dp-next .sidebar.dp-side {
+  background:linear-gradient(166deg,#0e1830 0%,#0b1121 53%,#171133 100%);
+  border-right:1px solid #353358;
+  --dp-active:#26264c; --dp-hover:#202743;--dp-brand:#aaa5ff;
+}
+#root .app-shell.dp-next .dp-side-brand {border-bottom-color:#343452}
+#root .app-shell.dp-next .dp-side-logo{
+  background:linear-gradient(135deg,#97f0e9,#a9a2ff);
+  box-shadow:0 7px 28px rgba(120,150,255,.34),inset 0 1px 0 #fff;
+}
+#root .app-shell.dp-next .dp-side-wordmark b{color:#b5a6ff}
+#root .app-shell.dp-next .dp-side-link.active {
+  background:linear-gradient(90deg,rgba(112,100,236,.26),rgba(113,96,224,.07));
+  color:#f3f0ff;border-color:rgba(170,156,255,.32);
+  box-shadow:inset 3px 0 #ae9cff,0 8px 26px rgba(56,38,130,.12);
+}
+#root .app-shell.dp-next .dp-side-link.active>svg{color:#b9adff}
+#root .app-shell.dp-next .dp-side-link:hover{background:rgba(118,132,239,.12)}
+#root .app-shell.dp-next .dp-side-ai{
+  background:linear-gradient(103deg,#93f6ef,#b6b1ff);
+  color:#10192f;border-radius:12px;
+  box-shadow:0 8px 28px rgba(102,208,219,.14);
+}
+#root .app-shell.dp-next .dp-side-ai:hover{background:linear-gradient(103deg,#c4ffff,#ccc4ff)}
+#root .app-shell.dp-next .studio-sidebar-note{
+  background:linear-gradient(140deg,rgba(83,74,157,.25),rgba(28,49,77,.75));
+  border-color:#4b4578;
+}
+
+/* Dashboard — dark luminous control deck. */
+#root .app-shell.dp-next .mc-hero {
+  background:
+    radial-gradient(ellipse 66% 100% at 11% 72%,rgba(41,107,159,.20),transparent),
+    radial-gradient(ellipse 73% 104% at 86% 16%,rgba(107,78,211,.28),transparent),
+    linear-gradient(125deg,#121a31 0%,#101529 52%,#21193a 100%);
+  border:1px solid rgba(165,171,255,.3);
+  border-radius:24px;
+  box-shadow:0 35px 80px rgba(3,6,19,.26),inset 0 1px 0 rgba(255,255,255,.08);
+}
+#root .app-shell.dp-next .mc-hero::after {
+  content:"";position:absolute;z-index:0;pointer-events:none;inset:0;
+  background-image:linear-gradient(rgba(155,176,255,.038) 1px,transparent 1px),linear-gradient(90deg,rgba(155,176,255,.038) 1px,transparent 1px);
+  background-size:42px 42px;mask-image:linear-gradient(90deg,transparent 10%,#000 96%);
+}
+#root .app-shell.dp-next .mc-hero-left,
+#root .app-shell.dp-next .mc-hero-right{position:relative;z-index:1}
+#root .app-shell.dp-next .mc-hero h1{letter-spacing:-.079em;text-wrap:balance}
+#root .app-shell.dp-next .mc-gradient-word {
+  background:linear-gradient(105deg,#fff 0%,#b9acff 48%,#68e4ee 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+#root .app-shell.dp-next .mc-heading-dot{color:#8af4e6}
+#root .app-shell.dp-next .mc-primary{
+  background:linear-gradient(105deg,#858dff,#aa96ff);
+  color:#101526;box-shadow:0 9px 32px rgba(108,104,244,.32);
+  border:1px solid rgba(255,255,255,.3);border-radius:12px;
+}
+#root .app-shell.dp-next .mc-primary:hover{background:linear-gradient(105deg,#9ca7ff,#c2aaff);box-shadow:0 12px 32px rgba(119,110,255,.42)}
+#root .app-shell.dp-next .mc-hero-right {
+  background:linear-gradient(145deg,rgba(22,32,60,.7),rgba(24,25,55,.89));
+  border:1px solid rgba(184,175,254,.32);border-radius:19px;
+  box-shadow:inset 0 1px 0 #ffffff14,0 20px 40px #07091c46;
+}
+#root .app-shell.dp-next .mc-hero-right:before {
+  opacity:.6;background:radial-gradient(circle at 50% 49%,rgba(126,119,255,.22),transparent 57%);
+}
+#root .app-shell.dp-next .mc-node {
+  background:linear-gradient(145deg,#262b4acb,#171f39ed);
+  border:1px solid rgba(166,173,255,.45);
+  box-shadow:0 14px 40px #060a21a8,inset 0 1px 0 #ffffff14;
+  backdrop-filter:blur(10px);border-radius:12px;
+}
+#root .app-shell.dp-next .mc-node:hover {border-color:#85eee9;box-shadow:0 0 24px #64deed28,0 14px 32px #060a2177}
+#root .app-shell.dp-next .mc-topology .mc-connections path[stroke-dasharray]{stroke:#9a9bf5;stroke-opacity:.74}
+#root .app-shell.dp-next .mc-project-strip {border-bottom-color:var(--dp-line)}
+#root .app-shell.dp-next .mc-metric {
+  background:var(--dp-glass);border:1px solid var(--dp-line);
+  border-radius:19px;min-height:196px;box-shadow:0 12px 28px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.04);
+}
+#root .app-shell.dp-next .mc-metric:before {
+  height:3px;background:linear-gradient(90deg,transparent,var(--metric-tone),transparent);
+}
+#root .app-shell.dp-next .mc-metric-number{font-size:clamp(40px,3.4vw,61px);letter-spacing:-.08em}
+#root .app-shell.dp-next .mc-metric .mc-metric-head svg {filter:drop-shadow(0 0 13px var(--metric-tone))}
+#root .app-shell.dp-next .mc-panel,
+#root .app-shell.dp-next .mc-ai-card,
+#root .app-shell.dp-next .mc-research-rail,
+#root .app-shell.dp-next .sa {
+  border-radius:21px;border-color:var(--dp-line);box-shadow:0 18px 42px rgba(0,0,0,.095);
+}
+#root .app-shell.dp-next .mc-ai-card {
+  background:linear-gradient(150deg,var(--mc-surface),color-mix(in srgb,var(--mc-surface) 83%,#2c2554));
+  isolation:isolate;position:relative;overflow:hidden;
+}
+#root .app-shell.dp-next .mc-ai-card:before {
+  content:"";position:absolute;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(circle at var(--dp-pointer-x,82%) var(--dp-pointer-y,7%),rgba(137,135,255,.11),transparent 60%);
+}
+#root .app-shell.dp-next .mc-ai-card>* {position:relative;z-index:1}
+#root .app-shell.dp-next .mc-ai-card-icon {
+  filter:drop-shadow(0 6px 20px rgba(132,121,255,.25));
+}
+#root .app-shell.dp-next :is(.panel,.eng-panel,.eng-card,.eng-metric,.kanban-col) {
+  border:1px solid var(--dp-line);
+  border-radius:18px;background:var(--mc-surface);box-shadow:0 12px 34px rgba(5,10,25,.075);
+}
+#root .app-shell.dp-next .btn.primary {
+  background:linear-gradient(115deg,#8888ff,#aba0ff);color:#101326;
+  border:1px solid rgba(255,255,255,.14);box-shadow:0 7px 20px rgba(107,89,218,.16);
+}
+#root .app-shell.dp-next .btn.primary:hover {background:#c0b9ff;color:#101326}
+#root .app-shell.dp-next .panel-header h3{font-weight:770}
+#root .app-shell.dp-next :is(.task-card,.document-item,.official-source,.eng-readonly){border-radius:14px}
+#root .app-shell.dp-next .task-card:hover{border-color:var(--dp-electric);box-shadow:0 12px 32px rgba(80,65,185,.13)}
+#root .app-shell.dp-next .kanban-col{min-width:240px;}
+#root .app-shell.dp-next .modal-backdrop{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+#root .app-shell.dp-next .modal{border-radius:24px;box-shadow:0 40px 120px rgba(0,0,0,.38);animation:dp-dialog-enter .28s cubic-bezier(.16,1,.3,1) both}
+#root .app-shell.dp-next .ap-premium{background:transparent}
+#root .app-shell.dp-next .ap-kpi{box-shadow:inset 0 1px 0 #ffffff0b}
+#root .app-shell.dp-next :is(.ap-kpis,.ap-card,.ap-panel,.ap-chart,.ap-table-wrap) {border-radius:18px}
+#root .app-shell.dp-next .ap-btn.primary{background:linear-gradient(105deg,#818aff,#a99bff);color:#101a33;border-color:#9c95fc}
+
+/* Holographic 3D reactor. CSS-only, works without WebGL and external assets. */
+#root .app-shell.dp-next .mc-topology-core.dp-reactor{
+  width:180px;height:180px;background:conic-gradient(#85efed var(--mc-fill),#7478bb69 0);
+  border:0;padding:10px;isolation:isolate;
+  box-shadow:0 0 0 16px rgba(121,141,244,.045),0 0 60px rgba(103,87,227,.29),0 20px 48px #070b1d8c;
+}
+#root .app-shell.dp-next .mc-topology-core.dp-reactor:before{
+  inset:10px;background:radial-gradient(circle at 35% 22%,#454679,#171e39 70%);
+  border:1px solid rgba(160,175,255,.45);
+}
+#root .app-shell.dp-next .dp-reactor-stage {
+  position:absolute;inset:-48px;z-index:0!important;pointer-events:none;display:block!important;
+  perspective:600px;transform-style:preserve-3d;
+}
+#root .app-shell.dp-next .dp-reactor-fog {
+  position:absolute;inset:18px;border-radius:50%;
+  background:radial-gradient(circle,rgba(121,120,255,.33),rgba(101,219,245,.1) 40%,transparent 70%);
+  filter:blur(20px);
+}
+#root .app-shell.dp-next .dp-reactor-assembly {
+  position:absolute;inset:23px;border-radius:50%;transform-style:preserve-3d;
+  transform:rotateX(64deg) rotateY(-18deg);
+  animation:dp-reactor-turn 23s linear infinite;
+}
+#root .app-shell.dp-next .dp-reactor-ring {
+  position:absolute;inset:8%;border-radius:50%;border:2px solid rgba(159,180,255,.77);
+  box-shadow:0 0 16px rgba(105,178,255,.47),inset 0 0 15px rgba(115,92,255,.14);
+  transform-style:preserve-3d;
+}
+#root .app-shell.dp-next .dp-reactor-ring-one {border-top-color:#91f8e5;border-left-color:transparent;transform:rotateY(59deg)}
+#root .app-shell.dp-next .dp-reactor-ring-two {inset:17%;border-right-color:#caafff;border-bottom-color:transparent;transform:rotateX(66deg)}
+#root .app-shell.dp-next .dp-reactor-ring-three {inset:1%;border-style:dashed;border-color:#8888df72;transform:rotateY(90deg) rotateX(33deg)}
+#root .app-shell.dp-next .dp-reactor-sphere {
+  position:absolute;inset:28%;border-radius:50%;
+  background:radial-gradient(circle at 29% 22%,#caffff 0%,#9eabff 17%,#5454be 45%,#1b224b 75%);
+  box-shadow:inset -11px -15px 23px #0a0a388c,0 0 25px #7f85ffab;
+  transform:translateZ(32px);opacity:.86;
+}
+#root .app-shell.dp-next .dp-reactor-sphere-gloss{position:absolute;inset:10% 45% 62% 10%;border-radius:50%;background:#f5ffff97;filter:blur(8px)}
+#root .app-shell.dp-next .dp-reactor-crosshair {
+  position:absolute;left:50%;top:50%;width:8px;height:8px;border-radius:50%;background:#8ef5ea;
+  box-shadow:0 0 18px 5px #74eaff7a;
+}
+#root .app-shell.dp-next .dp-reactor-crosshair.one{transform:translate3d(90px,0,20px)}
+#root .app-shell.dp-next .dp-reactor-crosshair.two{transform:translate3d(-80px,20px,-20px);background:#b69bff}
+#root .app-shell.dp-next .dp-reactor-caption {position:absolute;bottom:7px;left:50%;transform:translateX(-50%);font:7px var(--mc-mono);letter-spacing:.16em;white-space:nowrap;color:#c0baff;opacity:.8}
+#root .app-shell.dp-next .mc-topology-core.dp-reactor>.dp-reactor-data {
+  display:flex!important;position:relative;z-index:2;text-align:center;
+  padding:10px 7px;background:rgba(18,19,47,.66);backdrop-filter:blur(6px);
+  border:1px solid rgba(189,194,255,.28);border-radius:18px;
+  box-shadow:0 8px 25px #080a2677;
+}
+#root .app-shell.dp-next .mc-topology-core.dp-reactor .dp-reactor-data strong{font-size:42px;line-height:1.15;color:white}
+#root .app-shell.dp-next .mc-topology-core.dp-reactor .dp-reactor-data small{color:#d3c8ff}
+#root .app-shell.dp-next .mc-topology-core.dp-reactor .dp-reactor-data>span{color:#aab9e2}
+
+/* Device-aware depth, one frame per pointer event, never intercept click. */
+@media (hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference) {
+  #root .app-shell.dp-next .dp-tilt {
+    transform:perspective(1100px) rotateX(var(--dp-tilt-x,0deg)) rotateY(var(--dp-tilt-y,0deg)) translateZ(0);
+    transform-style:preserve-3d;
+    transition:transform .22s cubic-bezier(.2,.8,.2,1),border-color .22s,box-shadow .22s;
+    will-change:transform;
+  }
+  #root .app-shell.dp-next .dp-tilt:hover {
+    transform:perspective(1100px) rotateX(var(--dp-tilt-x,0deg)) rotateY(var(--dp-tilt-y,0deg)) translate3d(0,-3px,0);
+    border-color:rgba(165,152,255,.57);
+    box-shadow:0 24px 50px rgba(8,8,29,.2),0 0 0 1px rgba(155,151,255,.1);
+  }
+  #root .app-shell.dp-next .dp-tilt:after {
+    content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+    background:radial-gradient(circle at var(--dp-pointer-x,50%) var(--dp-pointer-y,50%),rgba(255,255,255,.075),transparent 57%);
+    opacity:0;transition:opacity .24s;
+  }
+  #root .app-shell.dp-next .dp-tilt:hover:after{opacity:1}
+}
+
+/* RAG AI assistant — data stays exactly as returned by the API. */
+#root .app-shell.dp-next .rag-layout{gap:18px;align-items:stretch}
+#root .app-shell.dp-next .chat-panel{overflow:hidden;border:1px solid var(--dp-line);border-radius:21px}
+#root .app-shell.dp-next .chat-header{
+  padding:17px 21px!important;
+  background:linear-gradient(98deg,var(--mc-surface),var(--mc-surface-hi))!important;
+  border-bottom:1px solid var(--dp-line)!important;
+}
+#root .app-shell.dp-next .chat-avatar{
+  display:grid;place-items:center;width:44px;height:44px;border-radius:15px;
+  background:linear-gradient(145deg,#252a58,#283c55);
+  border:1px solid #8184dc66;color:#eaeaff;
+}
+#root .app-shell.dp-next .chat-hero-icon{
+  display:grid;place-items:center;width:92px;height:92px;
+  background:radial-gradient(circle,#2b3069,#161e38)!important;
+  border:1px solid rgba(155,157,255,.47)!important;border-radius:27px!important;
+  box-shadow:0 0 60px rgba(110,105,224,.17);
+}
+.dp-ai-activity-orb{width:31px;height:31px;display:inline-grid;place-items:center;position:relative;flex:0 0 31px}
+.dp-ai-activity-orb>span{grid-area:1/1;display:block;border-radius:50%;border:1px solid rgba(185,179,255,.9);width:27px;height:27px;transform:rotateX(62deg) rotate(17deg)}
+.dp-ai-activity-orb>span:nth-child(2){transform:rotateY(66deg) rotate(36deg);border-color:#81e6f5;width:27px;height:27px}
+.dp-ai-activity-orb>span:nth-child(3){width:12px;height:12px;border:0;background:radial-gradient(circle at 28% 24%,#d8ffff,#a28aff 65%,#5454d8);box-shadow:0 0 16px #9f9affad}
+.chat-hero-icon .dp-ai-activity-orb{transform:scale(2.15)}
+.dp-ai-activity-orb.is-busy>span:first-child{animation:dp-orb-spin 1.8s linear infinite}
+.dp-ai-activity-orb.is-busy>span:nth-child(2){animation:dp-orb-spin 2.3s linear infinite reverse}
+#root .app-shell.dp-next .chat-message.ai .bubble{
+  background:linear-gradient(145deg,var(--mc-field),var(--mc-surface-hi));
+  border:1px solid var(--dp-line);border-radius:17px 17px 17px 5px;
+}
+#root .app-shell.dp-next .chat-message.user .bubble{
+  background:linear-gradient(120deg,#7164d0,#4d62b8);color:white;
+  border-radius:17px 17px 5px 17px;
+}
+#root .app-shell.dp-next .chat-message{animation:dp-chat-in .3s ease-out both}
+#root .app-shell.dp-next .chat-input{
+  border-top:1px solid var(--dp-line);
+  background:var(--mc-surface)!important;
+}
+#root .app-shell.dp-next .send-btn{
+  background:linear-gradient(130deg,#9894ff,#7777e7);border-radius:12px;
+}
+.dp-chat-typing{display:flex;align-items:center;gap:12px;padding:14px 16px;margin:12px 0;border-radius:14px;border:1px solid var(--dp-line);background:var(--mc-field);font-size:12px;color:var(--mc-muted)}
+.dp-chat-typing .dp-ai-activity-orb{transform:scale(.82)}
+.dp-typing-dots{display:flex;gap:3px;margin-left:auto}
+.dp-typing-dots i{width:5px;height:5px;border-radius:50%;background:var(--dp-electric);animation:dp-typing 1.15s ease-in-out infinite}
+.dp-typing-dots i:nth-child(2){animation-delay:.16s}.dp-typing-dots i:nth-child(3){animation-delay:.32s}
+
+/* Auth — make the existing secure OTP form feel like a product, keep all fields. */
+#root .dp-premium-auth .dp-auth-experience{
+  --da-lime:#a9a2ff;--da-primary:#43378d;
+  --da-ink:#1b2340;--da-muted:#6c7390;--da-edge:#dce1ef;
+  background:#f7f8ff;
+}
+#root .dp-premium-auth .dp-auth-story{
+  background:
+    radial-gradient(ellipse 63% 51% at 68% 51%,rgba(107,94,227,.27),transparent),
+    radial-gradient(ellipse 70% 65% at 3% 0%,rgba(56,120,191,.18),transparent),
+    #0a1025;
+}
+#root .dp-premium-auth .dp-auth-story::before{
+  opacity:.48;background-image:linear-gradient(#a4afff16 1px,transparent 1px),linear-gradient(90deg,#a4afff16 1px,transparent 1px);background-size:44px 44px;
+}
+#root .dp-premium-auth .dp-auth-story::after{
+  background:radial-gradient(circle,#9582ff45 0%,#6c60c844 32%,transparent 69%);
+}
+#root .dp-premium-auth .dp-auth-logomark {background:linear-gradient(130deg,#88eeed,#b5a8ff);color:#0d1933;box-shadow:0 7px 27px rgba(133,114,244,.32)}
+#root .dp-premium-auth .dp-auth-orbit-art{perspective:900px;transform-style:preserve-3d}
+#root .dp-premium-auth .dp-auth-orbit-ring.ring-1 {
+  border-color:#a8b4ff7a;box-shadow:0 0 0 38px #9091ff09,0 0 40px #8675ff38;
+  transform:translate(-50%,-50%) rotateX(48deg) rotateY(-18deg);
+}
+#root .dp-premium-auth .dp-auth-orbit-ring.ring-2{border-color:#a2c6ff6c;transform:translate(-50%,-50%) rotate(-30deg) rotateY(54deg)}
+#root .dp-premium-auth .dp-auth-core{
+  background:radial-gradient(circle at 27% 25%,#6368ad,#2c285f 58%,#1e224f);
+  border:1px solid #b9afff99;color:#c8c5ff;
+  transform:translate(-50%,-50%) rotateY(-13deg) rotateX(9deg);
+  box-shadow:inset 0 2px 12px #edecff30,0 29px 80px #060c2988,0 0 65px #8c88fa56;
+}
+#root .dp-premium-auth .dp-auth-chip{background:#192343e8;border-color:#938afc77;box-shadow:0 14px 38px #060827a0}
+#root .dp-premium-auth .dp-auth-chip svg{color:#a6e8ec}
+#root .dp-premium-auth .dp-auth-form-area{background:radial-gradient(circle at 100% 0%,#e6e8ff,transparent 50%),#f7f8ff}
+#root .dp-premium-auth .dp-auth-panel{
+  border:1px solid #e0e4f4;border-radius:26px;padding:clamp(18px,2.4vw,36px);
+  background:rgba(255,255,255,.86);backdrop-filter:blur(20px);
+  box-shadow:0 35px 90px #1d20581a,0 3px 16px #1d20580a;
+}
+#root .dp-premium-auth .dp-auth-panel h2{color:#1b2340}
+#root .dp-premium-auth .dp-auth-heading-icon {background:linear-gradient(145deg,#e8e7ff,#daf4f7);border-color:#c9c8f5;color:#5152b1}
+#root .dp-premium-auth .dp-auth-input-wrap{border-color:#d4d9ec;border-radius:13px;background:#fff}
+#root .dp-premium-auth .dp-auth-input-wrap:focus-within{border-color:#8285fa;box-shadow:0 0 0 4px #7770df22}
+#root .dp-premium-auth .dp-auth-submit{background:linear-gradient(110deg,#6f6ce0,#9485f1);box-shadow:0 14px 27px #6159bc37}
+#root .dp-premium-auth .dp-auth-submit:hover:not(:disabled){box-shadow:0 15px 35px #6159bc59}
+
+/* Public landing — coordinate with the product branding without altering CTA flow. */
+#root .dp-landing {
+  --lp-ink:#111a36;--lp-paper:#f6f7fd;--lp-card:#fff;
+  --lp-line:#e1e5f2;--lp-muted:#62708e;
+  --lp-acid:#a9b5ff;--lp-violet:#e5e2ff;
+  --lp-sand:#edf0ff;--lp-peach:#f4e1ee;--lp-blue:#d7f5f7;
+  --lp-shadow:0 25px 65px rgba(30,42,96,.1),0 5px 15px rgba(40,45,88,.04);
+}
+#root .dp-landing[data-theme='dark']{
+  --lp-ink:#edf0ff;--lp-paper:#0b1021;--lp-card:#131c34;
+  --lp-line:#303959;--lp-muted:#adb8d0;
+  --lp-acid:#aba5ff;--lp-violet:#302b52;
+  --lp-sand:#252844;--lp-peach:#39273f;--lp-blue:#1d3b4a;
+  --lp-shadow:0 25px 70px rgba(0,0,0,.36);
+}
+#root .dp-landing .lp-hero{
+  background:radial-gradient(ellipse 70% 70% at 84% 48%,rgba(124,103,236,.10),transparent 75%),var(--lp-paper);
+}
+#root .dp-landing .lp-announcement{background:#101831;color:#d2d7ef}
+#root .dp-landing .lp-hero h1>span {
+  background:linear-gradient(108deg,#aaadff,#8cf0eb);
+  color:#101b32;box-shadow:0 10px 35px rgba(110,105,235,.18);
+}
+#root .dp-landing .lp-hero-art{perspective:1400px;transform-style:preserve-3d}
+#root .dp-landing .lp-preview-window {
+  box-shadow:0 30px 90px rgba(15,16,48,.22),0 0 0 1px rgba(142,132,255,.10);
+  border-color:rgba(156,153,238,.4);
+}
+#root .dp-landing :is(.lp-nav-login,.lp-hero-primary,.lp-cta-primary):hover {box-shadow:0 15px 38px rgba(100,96,209,.23)}
+#root .dp-landing .lp-brand-dot{color:#8885f7}
+#root .dp-landing .lp-brand-symbol{border-radius:11px;background:linear-gradient(133deg,#6467d9,#78c8d7);color:white}
+
+/* Motion rules: readable in every accessibility setting. */
+@keyframes dp-page-in{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+@keyframes dp-dialog-enter{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes dp-chat-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes dp-reactor-turn{from{transform:rotateX(64deg) rotateY(-18deg) rotateZ(0)}to{transform:rotateX(64deg) rotateY(-18deg) rotateZ(360deg)}}
+@keyframes dp-orb-spin{to{transform:rotateX(62deg) rotateZ(360deg)}}
+@keyframes dp-typing{0%,65%,100%{opacity:.3;transform:translateY(0)}35%{opacity:1;transform:translateY(-4px)}}
+
+/* Retina, tablet, mobile: no horizontal overflow, touch target sizing. */
+@media (max-width:1150px){
+  #root .app-shell.dp-next .mc-hero{grid-template-columns:1fr}
+  #root .app-shell.dp-next .mc-hero-right{margin:0 16px 16px;min-height:340px}
+}
+@media (max-width:980px){
+  #root .app-shell.dp-next .sidebar.dp-side+.main-panel,
+  #root .app-shell.dp-next .sidebar.dp-side.sidebar-collapsed+.main-panel{width:100%;margin-left:0}
+  #root .app-shell.dp-next .mc-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #root .app-shell.dp-next .rag-layout{grid-template-columns:1fr}
+}
+@media (max-width:700px){
+  #root .app-shell.dp-next .main-content{padding:19px 14px 54px}
+  #root .app-shell.dp-next .mc-hero{border-radius:18px}
+  #root .app-shell.dp-next .mc-hero-left{padding:28px 22px}
+  #root .app-shell.dp-next .mc-topology-core.dp-reactor{height:144px;width:144px}
+  #root .app-shell.dp-next .dp-reactor-stage{inset:-34px}
+  #root .app-shell.dp-next .mc-topology-core.dp-reactor .dp-reactor-data strong{font-size:31px}
+  #root .app-shell.dp-next .mc-hero-right{min-height:290px;margin:0 12px 12px}
+  #root .app-shell.dp-next .mc-metric{min-height:154px;padding:16px}
+  #root .app-shell.dp-next .mc-metric-number{font-size:39px}
+  #root .app-shell.dp-next .mc-ai-grid{grid-template-columns:1fr}
+  #root .app-shell.dp-next .mc-command-trigger{min-width:38px}
+  #root .app-shell.dp-next .topbar-workspace-label{display:none}
+  #root .app-shell.dp-next .kanban{scroll-snap-type:x proximity;overscroll-behavior-inline:contain}
+  #root .app-shell.dp-next .kanban-col{scroll-snap-align:start;min-width:min(85vw,330px)}
+  #root .app-shell.dp-next .modal{max-height:90dvh;overflow:auto;width:min(95vw,600px)}
+  #root .dp-premium-auth .dp-auth-panel{padding:18px;border-radius:18px}
+  #root .dp-landing .lp-hero h1{white-space:normal}
+}
+@media (max-width:390px){
+  #root .app-shell.dp-next .mc-metric{padding:12px;min-height:146px}
+  #root .app-shell.dp-next .mc-metric-number{font-size:33px}
+  #root .app-shell.dp-next .mc-topology-core.dp-reactor{height:130px;width:130px}
+  #root .app-shell.dp-next .dp-reactor-assembly{inset:34px}
+  #root .app-shell.dp-next .mc-project-strip{gap:10px}
+  #root .app-shell.dp-next .chat-header{padding:14px!important}
+}
+@media (prefers-reduced-motion:reduce){
+  #root .app-shell.dp-next .main-content,
+  #root .app-shell.dp-next .modal,
+  #root .app-shell.dp-next .chat-message,
+  #root .app-shell.dp-next .dp-reactor-assembly,
+  .dp-ai-activity-orb.is-busy>span,
+  .dp-typing-dots i {
+    animation:none!important;transition:none!important;transform:none!important;
+  }
+  #root .app-shell.dp-next .dp-tilt{transform:none!important;will-change:auto}
+  #root .dp-premium-auth .dp-auth-orbit-art *,#root .dp-landing .lp-hero-art *{animation:none!important}
+}
+
+/* Complete dark mode for the authentication form, not just its illustration. */
+#root .dp-premium-auth[data-theme='dark'] .dp-auth-experience{
+  --da-ink:#f2f4ff;--da-muted:#a7b4d0;--da-edge:#323c61;
+  --da-paper:#0b1022;
+  color:#eff3ff;background:#0b1022;
+}
+#root .dp-premium-auth[data-theme='dark'] .dp-auth-form-area{
+  background:radial-gradient(circle at 100% 0%,#27224b,transparent 52%),#0b1022;
+}
+#root .dp-premium-auth[data-theme='dark'] .dp-auth-panel{
+  background:rgba(22,29,52,.82);border-color:#3b4267;
+  box-shadow:0 35px 90px #03050e8c,0 1px 0 #ffffff10 inset;
+}
+#root .dp-premium-auth[data-theme='dark'] .dp-auth-panel h2,
+#root .dp-premium-auth[data-theme='dark'] .dp-auth-description strong{color:#f0f3ff}
+#root .dp-premium-auth[data-theme='dark'] .dp-auth-description,
+#root .dp-premium-auth[data-theme='dark'] .dp-auth-field,
+#root .dp-premium-auth[data-theme='dark'] .dp-auth-secure,
+#root .dp-premium-auth[data-theme='dark'] .dp-auth-form-footer{color:#aab7d2}
+#root .dp-premium-auth[data-theme='dark'] .dp-auth-stepmark{color:#b2a9ff}
+#root .dp-premium-auth[data-theme='dark'] .dp-auth-heading-icon{
+  background:linear-gradient(145deg,#32335d,#263f56);border-color:#4f5185;color:#c7c1ff;
+}
+#root .dp-premium-auth[data-theme='dark'] .dp-auth-input-wrap{
+  background:#171e35;border-color:#404a70;color:#f4f6ff;
+}
+#root .dp-premium-auth[data-theme='dark'] .dp-auth-input-wrap input{
+  background:transparent;color:#f6f7ff;
+}
+#root .dp-premium-auth[data-theme='dark'] .dp-auth-input-wrap input::placeholder{color:#8291b0}
+#root .dp-premium-auth[data-theme='dark'] .dp-auth-mode-switch{background:#1c2542;border-color:#42466e}
+#root .dp-premium-auth[data-theme='dark'] .dp-auth-mode-switch button{color:#b6c1da}
+#root .dp-premium-auth[data-theme='dark'] .dp-auth-mode-switch button.selected{
+  color:#fafaff;background:#55509a;box-shadow:0 3px 14px #0509186b;
+}
+#root .dp-premium-auth[data-theme='dark'] .dp-auth-panel-index,
+#root .dp-premium-auth[data-theme='dark'] .dp-auth-strength-top{color:#b2bdd4}
+#root .dp-premium-auth[data-theme='dark'] .dp-auth-lower{color:#b8c0d9}
+#root .dp-premium-auth[data-theme='dark'] .dp-auth-otp-fields input{
+  background:#171e35;color:#f6f7ff;border-color:#515a83;
+}
+#root .dp-premium-auth[data-theme='dark'] .dp-auth-otp-fields input:focus{
+  border-color:#9c90ff;box-shadow:0 0 0 4px #9d88ff24;
+}
+#root .dp-premium-auth[data-theme='dark'] .dp-auth-notice{
+  background:#163b39;color:#b9f8df;border-color:#2e8272;
+}
+#root .dp-premium-auth[data-theme='dark'] .dp-auth-error{
+  background:#452134;color:#ffd4dc;border-color:#8c4760;
+}
+/* Micro-interactions on project navigation and primary form controls. */
+@media (prefers-reduced-motion:no-preference){
+  #root .app-shell.dp-next .dp-side-link.active:before{animation:dp-nav-pulse 3.8s ease-in-out infinite}
+  #root .app-shell.dp-next .send-btn:not(:disabled):hover svg,
+  #root .app-shell.dp-next .btn.primary:not(:disabled):hover svg{transform:translate(2px,-2px)}
+  #root .dp-premium-auth .dp-auth-submit:not(:disabled):hover svg{transform:translateX(3px)}
+}
+@keyframes dp-nav-pulse{0%,100%{box-shadow:0 0 0 rgba(151,135,249,0)}50%{box-shadow:0 0 17px rgba(155,141,255,.26)}}
+#root .app-shell.dp-next .send-btn svg,
+#root .app-shell.dp-next .btn.primary svg,
+#root .dp-premium-auth .dp-auth-submit svg{transition:transform .2s ease}
+@media (prefers-reduced-motion:reduce){
+  #root .app-shell.dp-next .dp-side-link.active:before{animation:none!important}
+}

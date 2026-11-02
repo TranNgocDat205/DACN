@@ -164,7 +164,7 @@ export default function LandingPage({ onStart, onRegister = onStart, theme = 'li
             <div className="lp-hero-buttons"><button className="lp-button lp-button-primary" type="button" onClick={onStart}>Khám phá workspace <ArrowUpRight size={19}/></button><a className="lp-button lp-button-ghost" href="#features">Xem khả năng <ArrowDownRight size={18}/></a></div>
             <div className="lp-hero-caption"><span className="lp-hero-caption-icon"><Check size={13}/></span> Dành cho Product Owner, BA, Developer và QA <span className="lp-hero-caption-slash">/</span> BUILT FOR TEAMS</div>
           </div>
-          <div className="lp-hero-art">
+          <div className="lp-hero-art dp-premium-kinetic">
             <div className="lp-hero-art-meta"><span>PRODUCT PREVIEW</span><span>01 / 03</span></div>
             <div className="lp-art-halo" aria-hidden="true"/><div className="lp-art-grid" aria-hidden="true"/>
             <div className="lp-art-stamp" aria-hidden="true"><Sparkles size={15}/> THINK<br/>BETTER</div>

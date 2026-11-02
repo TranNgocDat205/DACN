@@ -1,0 +1,246 @@
+/* DevPilot AI V7 / NEXUS — Presentation only. No API, auth, or data side-effects. */
+:root{--nx-ink:#eaf2ff;--nx-cyan:#6de8ff;--nx-violet:#b4a1ff;--nx-peach:#ffb994;--nx-mint:#7ce6c6}
+
+/* A more deliberate typography, lighting and spatial rhythm across the actual app. */
+#root .app-shell.dp-next{--dp-electric:#a69cff;--brand:#7e83ef;--dp-glass:rgba(21,29,53,.88)}
+#root .app-shell.dp-next:not([data-theme="light"]) {
+  --mc-bg:#090e1d;--mc-surface:#131d33;--mc-text:#eff3ff;--mc-muted:#adbad4;
+  --mc-stroke:#303e61;--dp-line:rgba(151,177,241,.18);
+}
+#root .app-shell.dp-next .main-panel:before{
+  background:radial-gradient(ellipse 570px 500px at 87% 2%,rgba(102,79,201,.17),transparent 78%),
+    radial-gradient(ellipse 700px 600px at 2% 43%,rgba(26,178,206,.09),transparent 78%),
+    linear-gradient(90deg,transparent,rgba(184,198,255,.012),transparent);
+}
+#root .app-shell.dp-next .topbar{box-shadow:0 1px 0 rgba(134,159,228,.12),0 12px 35px rgba(4,7,20,.04)}
+#root .app-shell.dp-next .top-left b{letter-spacing:-.025em}
+#root .app-shell.dp-next .mc-hero{border-radius:28px;box-shadow:0 30px 90px rgba(4,9,30,.32),0 0 0 1px rgba(175,187,252,.03) inset}
+#root .app-shell.dp-next .mc-hero:before{opacity:.64}
+#root .app-shell.dp-next .mc-hero-right{box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 22px 48px rgba(2,5,20,.2)}
+#root .app-shell.dp-next .mc-metric,
+#root .app-shell.dp-next .mc-ai-card,
+#root .app-shell.dp-next .mc-panel{
+  position:relative;transition:border-color .24s ease,box-shadow .3s ease,background .3s ease;
+}
+#root .app-shell.dp-next .mc-metric:hover,
+#root .app-shell.dp-next .mc-ai-card:hover,
+#root .app-shell.dp-next .mc-panel:hover{
+  border-color:rgba(156,178,250,.40);box-shadow:0 24px 54px rgba(4,8,23,.18),0 0 32px rgba(113,120,255,.05);
+}
+#root .app-shell.dp-next .mc-hero h1{font-weight:850}
+#root .app-shell.dp-next .mc-section-heading h2{letter-spacing:-.065em}
+#root .app-shell.dp-next .mc-metric-number{font-variant-numeric:tabular-nums}
+#root .app-shell.dp-next :is(button,a,input,select,textarea):focus-visible,
+#root .dp-premium-auth :is(button,a,input,select,textarea):focus-visible,
+#root .dp-landing :is(button,a,input,select,textarea):focus-visible{
+  outline:2px solid #7ee5f6;outline-offset:3px;
+}
+#root .app-shell.dp-next .mc-command-trigger{border-radius:14px}
+#root .app-shell.dp-next .chat-panel{overflow:hidden;background:linear-gradient(150deg,rgba(34,42,78,.16),transparent 42%),var(--mc-surface)}
+#root .app-shell.dp-next .chat-header{position:relative;isolation:isolate}
+#root .app-shell.dp-next .chat-header::after{
+  content:"";position:absolute;right:6%;top:-45px;width:190px;height:140px;pointer-events:none;z-index:-1;
+  background:radial-gradient(circle,rgba(99,204,238,.13),transparent 70%);
+}
+#root .app-shell.dp-next .bubble{line-height:1.7;overflow-wrap:anywhere}
+#root .app-shell.dp-next .task-card,
+#root .app-shell.dp-next .document-item,
+#root .app-shell.dp-next .eng-card{transition:transform .22s ease,box-shadow .24s ease,border-color .2s ease}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){
+  #root .app-shell.dp-next .task-card:hover,
+  #root .app-shell.dp-next .document-item:hover{transform:translateY(-3px)}
+}
+#root .app-shell.dp-next .main-content{animation-duration:.36s}
+
+/* Distinct night-sky authentication accents; OTP/submit functionality is untouched. */
+#root .dp-premium-auth .dp-auth-panel{
+  border-radius:27px;box-shadow:0 38px 100px rgba(5,8,30,.30),inset 0 1px 0 rgba(255,255,255,.07);
+}
+#root .dp-premium-auth .dp-auth-submit{
+  border-radius:13px;box-shadow:0 12px 30px rgba(103,105,240,.20);
+}
+#root .dp-premium-auth .dp-auth-form-area:after{
+  content:"";position:absolute;z-index:0;pointer-events:none;width:340px;height:340px;
+  right:-140px;bottom:-145px;border:1px solid rgba(122,173,238,.12);border-radius:50%;
+  box-shadow:0 0 0 53px rgba(125,126,238,.025),0 0 0 108px rgba(124,126,238,.018);
+}
+#root .dp-landing .lp-hero{isolation:isolate}
+#root .dp-landing .lp-hero-art{filter:drop-shadow(0 38px 56px rgba(13,24,60,.12))}
+
+/* Nexus launcher — a physical gateway into an immersive, functional project map. */
+#root .app-shell.dp-next .nx-launcher {
+  display:flex;align-items:center;gap:20px;justify-content:space-between;flex-wrap:wrap;
+  position:relative;isolation:isolate;overflow:hidden;
+  padding:15px 18px 15px 20px;margin:0 0 22px;border:1px solid rgba(140,151,241,.32);
+  border-radius:18px;color:#f5f5ff;
+  background:radial-gradient(ellipse 55% 240% at 74% 100%,rgba(113,78,204,.19),transparent 75%),
+    linear-gradient(108deg,#151d36,#141e35 65%,#192242);
+  box-shadow:0 12px 32px rgba(4,8,30,.13),inset 0 1px 0 rgba(255,255,255,.07);
+}
+#root .app-shell.dp-next .nx-launcher:after{content:"";position:absolute;z-index:-1;pointer-events:none;
+  height:130px;width:220px;border:1px solid rgba(110,214,240,.16);border-radius:50%;right:23%;top:-90px;transform:rotate(-30deg)}
+.nx-launcher-copy{display:flex;align-items:center;gap:14px;min-width:0}
+.nx-launcher-icon{display:grid;place-items:center;width:44px;height:44px;flex-shrink:0;border-radius:14px;color:#111b2b;
+  background:linear-gradient(145deg,#78e8f7,#b2a3ff);box-shadow:0 6px 25px rgba(115,217,245,.22)}
+.nx-launcher-copy span:last-child{display:grid;gap:4px;min-width:0}
+.nx-launcher-copy small{color:#aebee0;letter-spacing:.13em;font-size:10px;font-weight:800}
+.nx-launcher-copy strong{font-size:14px;font-weight:650;letter-spacing:-.015em;line-height:1.3}
+.nx-launcher-stats{display:flex;align-items:center;gap:10px;color:#bccbeb;font-size:12px;font-weight:650;white-space:nowrap}
+.nx-launcher-pulse,.nx-live-dot,.nx-bleep{width:7px;height:7px;background:#69e7ca;border-radius:50%;box-shadow:0 0 0 5px rgba(102,230,201,.11),0 0 18px rgba(102,230,201,.36)}
+.nx-open{display:flex;align-items:center;justify-content:center;gap:9px;white-space:nowrap;min-height:44px;
+  padding:10px 15px;border:1px solid rgba(173,240,254,.36);border-radius:12px;cursor:pointer;
+  background:linear-gradient(115deg,#9cfcf9,#bcb0ff);color:#0c1930;font-weight:800;font-size:12px;
+  box-shadow:0 8px 22px rgba(122,158,244,.18);transition:transform .2s ease,box-shadow .2s ease}
+.nx-open:hover{box-shadow:0 11px 35px rgba(122,158,244,.38)}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){.nx-open:hover{transform:translateY(-2px)}}
+
+/* Fullscreen Observatory. Keyboard accessible modal; no external canvas or WebGL. */
+.nx-overlay{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;padding:14px;
+  background:rgba(3,6,15,.88);backdrop-filter:blur(18px) saturate(122%);-webkit-backdrop-filter:blur(18px) saturate(122%);
+  animation:nx-overlay-in .25s ease-out both}
+.nx-shell{position:relative;isolation:isolate;width:min(1580px,100%);max-height:calc(100dvh - 28px);min-height:min(760px,calc(100dvh - 28px));
+  display:flex;flex-direction:column;overflow:hidden;border:1px solid rgba(138,160,223,.34);border-radius:24px;
+  color:#edf2ff;background:radial-gradient(ellipse 540px 400px at 52% 34%,rgba(51,65,130,.17),transparent 100%),#090e1d;
+  box-shadow:0 50px 140px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,255,255,.07)}
+.nx-backlight{position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:radial-gradient(ellipse 500px 400px at 40% 60%,rgba(34,99,139,.12),transparent),
+  radial-gradient(ellipse 400px 400px at 94% 12%,rgba(96,60,165,.13),transparent)}
+.nx-topbar{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:20px 26px;
+  border-bottom:1px solid rgba(145,164,226,.17);background:rgba(11,17,36,.46)}
+.nx-brand{display:flex;align-items:center;gap:12px}
+.nx-brandmark{display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:linear-gradient(140deg,#94fff4,#baa8ff);color:#0b1730;box-shadow:0 0 28px #70e7e325}
+.nx-brand>span:last-child{display:grid;gap:2px}
+.nx-brand strong{letter-spacing:.08em;font-size:16px;font-weight:900;line-height:1}
+.nx-brand small{font-size:9px;letter-spacing:.17em;font-weight:700;color:#8fa0c9}
+.nx-brand-star{color:#83f5e7}
+.nx-top-center{display:flex;align-items:center;gap:13px;letter-spacing:.17em;font-size:10px;font-weight:800;color:#b9c9e8}
+.nx-close{min-width:75px;min-height:40px;display:flex;align-items:center;justify-content:center;gap:9px;
+  border:1px solid rgba(164,177,229,.26);background:rgba(37,47,79,.48);color:#f0f2ff;border-radius:12px;cursor:pointer;transition:background .2s}
+.nx-close:hover{background:rgba(69,80,125,.69)}
+.nx-close span{font-size:10px;letter-spacing:.08em;color:#a9b9d8}
+.nx-body{display:grid;grid-template-columns:minmax(195px, .75fr) minmax(370px,2fr) minmax(215px,.75fr);gap:10px;
+  padding:15px 22px 14px;flex:1;min-height:0}
+.nx-intro{padding:clamp(24px,4.4vw,68px) 10px 20px 6px;display:flex;flex-direction:column;align-items:start;min-width:0}
+.nx-eyebrow{display:flex;align-items:center;gap:11px;color:#93add4;font-size:9px;letter-spacing:.16em;font-weight:850;white-space:nowrap}
+.nx-bleep{width:5px;height:5px;background:#79d9ed;box-shadow:0 0 15px #79d9ed}
+.nx-crumb{color:#586e9b}
+.nx-intro h2{font-size:clamp(45px,5vw,83px);line-height:.94;letter-spacing:-.095em;margin:25px 0 25px;font-weight:850;color:#f3f4ff}
+.nx-intro h2 em{font-style:normal;font-weight:800;background:linear-gradient(115deg,#75f0f4,#a8b6ff 70%,#b497ff);background-clip:text;-webkit-background-clip:text;color:transparent}
+.nx-intro>p{color:#a7b8d9;font-size:13px;line-height:1.75;max-width:260px;margin:0}
+.nx-project-tag{margin-top:auto;display:grid;gap:11px;padding:16px 0 0;max-width:100%;overflow:hidden}
+.nx-project-tag span{font-size:10px;font-weight:800;letter-spacing:.18em;color:#8299c6}
+.nx-project-tag strong{font-size:13px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#edf4ff}
+.nx-observatory{position:relative;isolation:isolate;min-height:485px;min-width:0;overflow:hidden;border-radius:23px;
+  background:radial-gradient(ellipse 50% 45% at 50% 47%,rgba(90,75,178,.19),transparent),
+  radial-gradient(ellipse 40% 40% at 50% 60%,rgba(37,178,209,.11),transparent),
+  linear-gradient(150deg,rgba(22,31,62,.45),rgba(19,27,52,.1));border:1px solid rgba(135,164,232,.13)}
+.nx-space{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.nx-grid{position:absolute;inset:-90px;background-image:linear-gradient(rgba(121,156,214,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(121,156,214,.08) 1px,transparent 1px);
+  background-size:38px 38px;mask-image:radial-gradient(circle,black 14%,transparent 76%);transform:perspective(550px) rotateX(64deg) translateY(80px) scale(1.3);opacity:.63}
+.nx-ellipse{position:absolute;left:50%;top:50%;border:1px solid rgba(115,179,232,.16);border-radius:50%;transform:translate(-50%,-50%) rotate(-24deg)}
+.nx-ellipse.one{width:70%;height:36%}.nx-ellipse.two{width:49%;height:65%;transform:translate(-50%,-50%) rotate(30deg)}
+.nx-ellipse.three{width:35%;height:75%;transform:translate(-50%,-50%) rotate(-34deg);border-style:dashed}
+.nx-stars{position:absolute;inset:0;background-image:radial-gradient(circle,#d6e8ff 1px,transparent 1.4px),radial-gradient(circle,#a0b6f9 1px,transparent 1.5px);
+  background-size:113px 119px,187px 165px;background-position:19px 33px,43px 101px;opacity:.25;mask-image:radial-gradient(circle,#000,transparent 85%)}
+.nx-lines{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.nx-core{position:absolute;left:50%;top:50%;width:205px;height:205px;transform:translate(-50%,-50%) rotateX(var(--nx-motion-y,0deg)) rotateY(var(--nx-motion-x,0deg));
+  perspective:620px;transform-style:preserve-3d;transition:transform .25s ease;z-index:1;pointer-events:none}
+.nx-core-halo{position:absolute;inset:-37px;border-radius:50%;background:radial-gradient(circle,#9185ff31,transparent 65%);filter:blur(13px)}
+.nx-core-ring{position:absolute;border:1.5px solid rgba(122,196,245,.65);border-radius:50%;box-shadow:inset 0 0 20px rgba(64,141,239,.11),0 0 22px rgba(132,179,255,.14)}
+.nx-core-ring.ring-1{inset:-13px;transform:rotateX(71deg) rotateZ(22deg);border-width:2px;animation:nx-spin-1 21s linear infinite}
+.nx-core-ring.ring-2{inset:9px;transform:rotateY(69deg) rotateZ(-18deg);border-color:rgba(184,154,255,.74);animation:nx-spin-2 18s linear infinite reverse}
+.nx-core-ring.ring-3{inset:30px;border-style:dashed;border-color:rgba(120,229,244,.5);animation:nx-rotate 28s linear infinite}
+.nx-core-object{position:absolute;inset:32px;border-radius:50%;background:radial-gradient(circle at 31% 24%,#b4fff3,#73a1ff 31%,#5e54a8 58%,#151c45 85%);
+  box-shadow:inset -13px -15px 35px #050d35c9,inset 7px 8px 22px #d8ffff48,0 0 65px #6b78e780,0 0 0 1px #cadfff33;filter:saturate(1.14)}
+.nx-core-object-inner{position:absolute;inset:6px;border-radius:50%;border:1px solid rgba(219,249,255,.22)}
+.nx-core-mark{position:absolute;inset:0;display:flex;flex-direction:column;gap:4px;justify-content:center;align-items:center;text-align:center;
+  text-shadow:0 3px 20px #111a4c,0 2px 12px #050819}
+.nx-core-mark span{font-size:8px;letter-spacing:.21em;font-weight:850;color:#ecffff}
+.nx-core-mark strong{font-weight:850;letter-spacing:-.08em;font-size:57px;line-height:1.1;color:#fff}
+.nx-core-mark small{font-size:20px;letter-spacing:0;margin-left:4px}
+.nx-node-grid{position:absolute;inset:0;z-index:2;pointer-events:none}
+.nx-node{position:absolute;pointer-events:auto;text-align:left;width:clamp(130px,29%,175px);min-height:113px;padding:13px 15px;
+  border:1px solid rgba(143,164,226,.37);border-radius:15px;cursor:pointer;color:#e8efff;background:linear-gradient(140deg,rgba(29,40,75,.93),rgba(15,24,47,.95));
+  box-shadow:0 13px 35px rgba(2,4,17,.28),inset 0 1px 0 rgba(255,255,255,.07);backdrop-filter:blur(14px);
+  transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease;display:flex;flex-direction:column;gap:9px}
+.nx-node:hover,.nx-node.is-selected{border-color:var(--nx-accent);box-shadow:0 14px 38px rgba(2,5,19,.47),0 0 0 1px var(--nx-accent),0 0 25px rgba(105,173,249,.12)}
+.nx-node:hover{transform:translateY(-4px)}
+.nx-node-requirements{top:9%;left:4%}.nx-node-stories{top:9%;right:4%}.nx-node-board{bottom:9%;left:4%}.nx-node-done{bottom:9%;right:4%}
+.nx-cyan{--nx-accent:#71eaff}.nx-violet{--nx-accent:#b0a0ff}.nx-peach{--nx-accent:#ffbc9e}.nx-mint{--nx-accent:#7be6cb}
+.nx-node-index{font-size:9px;color:#a1b5d5;letter-spacing:.16em;font-weight:800}
+.nx-node-title{display:flex;gap:8px;align-items:center;white-space:nowrap}.nx-node-title svg{color:var(--nx-accent);flex:none}
+.nx-node-title strong{font-size:12px;font-weight:750;letter-spacing:-.025em}
+.nx-node-count{display:flex;gap:7px;align-items:baseline;font-size:29px;font-weight:850;letter-spacing:-.055em;line-height:1}
+.nx-node-count small{font-size:10px;font-weight:550;letter-spacing:0;color:#98aacc}
+.nx-node-arrow{position:absolute;right:10px;bottom:11px;color:var(--nx-accent)}
+.nx-coordinates{position:absolute;left:17px;bottom:16px;color:#8091b2;font-size:9px;letter-spacing:.14em;line-height:1.75;pointer-events:none}
+.nx-side{display:flex;flex-direction:column;min-width:0;padding:19px 15px 20px 22px}
+.nx-side-top{display:flex;align-items:center;justify-content:space-between;color:#97add1;letter-spacing:.17em;font-size:9px;font-weight:800}
+.nx-side-spark{color:#81ebf9}
+.nx-side-icon{display:grid;place-items:center;width:57px;height:57px;border-radius:16px;color:var(--nx-accent);
+  margin-top:45px;margin-bottom:25px;background:color-mix(in srgb,var(--nx-accent) 12%,transparent);border:1px solid color-mix(in srgb,var(--nx-accent) 27%,transparent)}
+.nx-side-kicker{font-size:9px;letter-spacing:.18em;color:#91a7cd;font-weight:800}
+.nx-side h3{font-size:clamp(24px,2.3vw,33px);letter-spacing:-.07em;margin:12px 0 12px;line-height:1.08;color:#f2f7ff}
+.nx-side p{font-size:12px;color:#a5b6d7;line-height:1.75;margin:0}
+.nx-side-number{display:flex;align-items:baseline;gap:10px;margin-top:24px}
+.nx-side-number strong{font-size:39px;font-weight:800;letter-spacing:-.08em}
+.nx-side-number span{font-size:10px;color:#99aed0}
+.nx-go{min-height:43px;display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;margin-top:16px;
+  padding:10px 14px;border:0;border-radius:11px;background:linear-gradient(110deg,#91f7f1,#b3b1ff);color:#0c192f;
+  cursor:pointer;font-size:12px;font-weight:850;transition:filter .2s ease}
+.nx-go:hover{filter:brightness(1.08)}
+.nx-side-divider{height:1px;background:#4857765c;margin:25px 0 13px}
+.nx-status-item{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:38px;font-size:10px;color:#93a9c8}
+.nx-status-item>span{display:flex;align-items:center;gap:7px}.nx-status-item svg{color:#77dce5}
+.nx-status-item b{font-weight:650;color:#d7e8fd;text-align:right}
+.nx-side-foot{display:flex;align-items:center;gap:6px;font-size:10px;color:#8499bf;margin-top:auto;padding-top:14px}
+.nx-bottom{display:flex;justify-content:space-between;gap:12px;padding:13px 28px;border-top:1px solid rgba(145,164,226,.13);
+  font-size:9px;letter-spacing:.18em;font-weight:800;color:#8297b8}
+@keyframes nx-overlay-in{from{opacity:0}to{opacity:1}}
+@keyframes nx-spin-1{from{transform:rotateX(71deg) rotateZ(22deg)}to{transform:rotateX(71deg) rotateZ(382deg)}}
+@keyframes nx-spin-2{from{transform:rotateY(69deg) rotateZ(-18deg)}to{transform:rotateY(69deg) rotateZ(342deg)}}
+@keyframes nx-rotate{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+
+/* Fully usable smaller workspaces, without compressing graph nodes into tiny targets. */
+@media(max-width:1240px){
+  .nx-body{grid-template-columns:minmax(180px,.75fr) minmax(330px,1.8fr);gap:15px;overflow-y:auto}
+  .nx-intro{padding-top:32px}.nx-observatory{min-height:500px}
+  .nx-side{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:6px 18px;padding:20px;border:1px solid #4d5f853e;border-radius:17px}
+  .nx-side-top,.nx-side-icon,.nx-side-kicker,.nx-side h3,.nx-side p,.nx-side-number,.nx-go,.nx-side-divider,.nx-status-item,.nx-side-foot{margin:0}
+  .nx-side-top{grid-column:1/-1}.nx-side-icon{grid-row:span 2}.nx-side h3{font-size:25px}
+  .nx-side-number{align-self:center}.nx-go{align-self:center}
+  .nx-side-divider{display:none}.nx-status-item{min-height:30px}.nx-side-foot{align-self:center}
+}
+@media(max-width:920px){
+  .nx-shell{overflow-y:auto;max-height:calc(100dvh - 18px);min-height:0}
+  .nx-topbar{padding:14px 17px}.nx-top-center{display:none}
+  .nx-body{display:flex;flex-direction:column;overflow:visible;padding:14px}
+  .nx-intro{padding:14px 10px 6px}.nx-intro h2{font-size:clamp(46px,8vw,70px);margin:12px 0 13px}.nx-intro p{max-width:650px}
+  .nx-project-tag{margin-top:12px;gap:6px}
+  .nx-observatory{min-height:510px}
+  .nx-side{display:flex;gap:10px}.nx-side-icon{margin-top:10px}.nx-side h3{margin:0}.nx-side p{font-size:13px}
+  .nx-side-number{margin-top:8px}.nx-go{margin:5px 0}.nx-side-divider{display:block;margin:8px 0}
+}
+@media(max-width:600px){
+  #root .app-shell.dp-next .nx-launcher{gap:12px;padding:13px}
+  .nx-launcher-copy{gap:11px}.nx-launcher-copy strong{font-size:12px}
+  .nx-launcher-stats{font-size:10px}.nx-open{width:100%}
+  .nx-overlay{padding:0}.nx-shell{width:100%;max-height:100dvh;min-height:100dvh;border:0;border-radius:0}
+  .nx-topbar{position:sticky;top:0;z-index:5;backdrop-filter:blur(15px)}
+  .nx-intro h2{font-size:53px}.nx-intro>p{font-size:12px}
+  .nx-observatory{min-height:600px;padding:18px 12px 22px}
+  .nx-lines{opacity:.3}.nx-core{top:32%;width:160px;height:160px}.nx-core-ring.ring-1{inset:-8px}
+  .nx-core-mark strong{font-size:43px}.nx-core-mark small{font-size:14px}.nx-core-mark span{font-size:7px}
+  .nx-core-object{inset:26px}
+  .nx-node-grid{inset:auto 10px 14px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+  .nx-node{position:relative!important;top:auto!important;left:auto!important;right:auto!important;bottom:auto!important;width:100%;min-height:114px;padding:12px}
+  .nx-node-title strong{font-size:11px}.nx-node-count{font-size:24px}
+  .nx-coordinates{top:12px;bottom:auto;font-size:8px}
+  .nx-side{padding:16px}.nx-bottom{font-size:8px;padding:12px 18px}
+}
+@media(max-width:370px){.nx-observatory{min-height:620px}.nx-node-title{gap:5px}.nx-node-title strong{font-size:10px}}
+@media(prefers-reduced-motion:reduce){
+  .nx-overlay,.nx-core-ring,.nx-core,.nx-node,.nx-open{animation:none!important;transition:none!important}
+  .nx-node:hover,.nx-open:hover{transform:none!important}
+  #root .app-shell.dp-next .main-content{animation:none!important}
+}

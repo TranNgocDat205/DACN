@@ -119,7 +119,7 @@ export default function AuthExperience({onAuth, api, initialMode='login'}){
         <div className="dp-auth-eyebrow"><span className="dp-auth-eyebrow-line"/> BUILD WITH CLARITY</div>
         <h1>Ý tưởng lớn.<br/><span>Triển khai</span><br/><em>thông minh.</em></h1>
         <p>Từ yêu cầu đầu tiên đến bản phát hành cuối cùng. Một không gian duy nhất để đội ngũ kiến tạo, cộng tác và đưa AI vào quy trình.</p>
-        <div className="dp-auth-orbit-art" aria-hidden="true">
+        <div className="dp-auth-orbit-art dp-premium-kinetic" aria-hidden="true">
           <div className="dp-auth-orbit-ring ring-1"/><div className="dp-auth-orbit-ring ring-2"/>
           <div className="dp-auth-core"><Layers3 size={25}/><span>DEVPILOT</span><strong>AI</strong></div>
           <div className="dp-auth-chip chip-1"><ScanSearch size={17}/><span>REQUIREMENTS</span><i/></div>
