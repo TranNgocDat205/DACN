@@ -1,0 +1,93 @@
+/* Lucian UX/UI Prompt #103 adaptation. Styles are scoped to .u103. */
+.u103 {
+  --ux-surface: var(--surface, #ffffff);
+  --ux-surface-2: var(--surface-2, #f5f3ef);
+  --ux-ink: var(--ink, #16151b);
+  --ux-ink-2: var(--ink-2, #57535f);
+  --ux-ink-3: var(--ink-3, #8e8a97);
+  --ux-line: var(--line, rgba(22,21,27,.09));
+  --ux-line-2: var(--line-strong, rgba(22,21,27,.17));
+  --ux-accent: var(--brand, #6a57f2);
+  --ux-accent-soft: color-mix(in srgb, var(--ux-accent) 12%, transparent);
+  --ux-shadow: rgba(20,30,70,.16);
+  --ux-ease: cubic-bezier(.2,.8,.2,1);
+  font-family: var(--font, 'Segoe UI', sans-serif);
+  font-size: 12px;
+  color: var(--ux-ink);
+  position: relative;
+  flex: 0 1 470px;
+  min-width: 0;
+  width: max-content;
+  max-width: min(470px, 100%);
+  z-index: 2;
+}
+.u103, .u103 *, .u103 *::before, .u103 *::after { box-sizing: border-box; }
+.u103 .u103-path { display:flex; align-items:center; gap:4px; min-width:0; overflow:hidden; white-space:nowrap; }
+#root .app-shell.dp-studio .u103 .u103-crumb {
+  background:transparent; border:0; border-radius:6px; box-shadow:none;
+  display:inline-flex; align-items:center; gap:5px;
+  max-width:148px; min-width:0; padding:7px 5px; min-height:38px;
+  font:700 11px/1.4 var(--font, sans-serif);
+  color:var(--ux-ink-2);
+  white-space:nowrap; transition:color .18s var(--ux-ease), background .18s var(--ux-ease);
+  cursor:pointer;
+}
+.u103 .u103-crumb > span { overflow:hidden; text-overflow:ellipsis; }
+#root .app-shell.dp-studio .u103 .u103-crumb:hover,
+#root .app-shell.dp-studio .u103 .u103-crumb[aria-expanded="true"] { background:var(--ux-accent-soft); color:var(--ux-accent); }
+#root .app-shell.dp-studio .u103 .u103-crumb[aria-current="page"] { color:var(--ux-accent); font-weight:800; }
+.u103 .u103-separator { flex:0 0 auto; color:var(--ux-ink-3); opacity:.75; }
+.u103 .u103-explorer {
+  position:absolute; top:calc(100% + 14px); left:0;
+  width:min(400px, calc(100vw - 28px));
+  max-height:min(420px, 68vh);
+  display:flex; flex-direction:column;
+  padding:14px; border:1px solid var(--ux-line-2); border-radius:15px;
+  background:var(--ux-surface); color:var(--ux-ink);
+  box-shadow:0 25px 65px -25px var(--ux-shadow), 0 14px 35px -20px rgba(18,25,70,.25);
+  z-index:150;
+  animation:u103-enter .19s var(--ux-ease) both;
+}
+.u103 .u103-explorer-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:2px 3px 12px; border-bottom:1px solid var(--ux-line); font-weight:800; font-size:12px; }
+.u103 .u103-explorer-count { border-radius:6px; background:var(--ux-accent-soft); color:var(--ux-accent); font-size:11px; padding:3px 8px; }
+.u103 .u103-places { display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:12px 0 0; overflow:auto; overscroll-behavior:contain; }
+#root .app-shell.dp-studio .u103 .u103-place {
+  display:flex; align-items:center; gap:8px;
+  min-width:0; min-height:56px; padding:8px 10px;
+  background:var(--ux-surface-2); color:var(--ux-ink);
+  border:1px solid var(--ux-line-2); border-radius:9px;
+  text-align:left; font:600 11px/1.4 var(--font, sans-serif);
+  transition:transform .2s var(--ux-ease),background .2s,border-color .2s;
+  cursor:pointer;
+}
+#root .app-shell.dp-studio .u103 .u103-place:hover { transform:translateY(-2px); border-color:var(--ux-accent); background:var(--ux-accent-soft); }
+.u103 .u103-place-symbol { display:grid; place-items:center; flex:0 0 22px; color:var(--ux-accent); }
+.u103 .u103-place-copy { min-width:0; flex:1; display:flex; flex-direction:column; gap:2px; }
+.u103 .u103-place-title { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.u103 .u103-place-copy small { color:var(--ux-ink-3); font-size:10px; }
+.u103 .u103-place-chevron { flex-shrink:0; color:var(--ux-ink-3); }
+.u103 .u103-place-check { flex-shrink:0; color:var(--ux-accent); }
+.u103 .u103-empty { grid-column:1/-1; margin:6px 3px 13px; color:var(--ux-ink-2); font-size:12px; }
+.u103 .u103-hint { padding-top:12px; font-size:10px; color:var(--ux-ink-3); margin:0; }
+.u103 :is(button):focus-visible { outline:2px solid var(--ux-accent); outline-offset:2px; }
+@keyframes u103-enter { from { opacity:0; transform:translateY(-6px) scale(.985); } to { opacity:1; transform:translateY(0) scale(1); } }
+@media(max-width:1250px) {
+  .u103 { flex-basis:290px; max-width:290px; }
+  .u103 .u103-crumb.u103-project { max-width:90px !important; }
+}
+@media(max-width:990px) {
+  .u103 { flex-basis:175px; max-width:175px; }
+  .u103 .u103-crumb.u103-root, .u103 .u103-crumb.u103-directory, .u103 .u103-crumb.u103-project { display:none!important; }
+  .u103 .u103-crumb.u103-page { max-width:158px !important; }
+  .u103 .u103-separator { display:none; }
+}
+@media(max-width:600px) {
+  .u103 { flex: 1 1 120px; max-width:none; }
+  #root .app-shell.dp-studio .u103 .u103-crumb.u103-page { max-width:140px !important; }
+  .u103 .u103-explorer { position:fixed; top:64px; left:12px; width:calc(100vw - 24px); max-height:65vh; }
+  .u103 .u103-places { grid-template-columns:1fr; }
+  #root .app-shell.dp-studio .u103 .u103-place { min-height:48px; }
+}
+@media(prefers-reduced-motion:reduce){
+  .u103 * { animation-duration:.001ms!important; transition-duration:.001ms!important; scroll-behavior:auto!important; }
+}
