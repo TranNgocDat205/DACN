@@ -4,6 +4,7 @@ import com.dacn.assistant.config.SecurityConfig;
 import com.dacn.assistant.model.Models.User;
 import com.dacn.assistant.repo.Repos;
 import com.dacn.assistant.service.EmailVerificationService;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -16,45 +17,38 @@ public class AuthController {
   private final Repos.Users users;
   private final SecurityConfig auth;
   private final PasswordEncoder passwords;
-  private final EmailVerificationService verification;
 
-  public AuthController(Repos.Users users, SecurityConfig auth, PasswordEncoder passwords,
-                        EmailVerificationService verification) {
-    this.users=users; this.auth=auth; this.passwords=passwords; this.verification=verification;
+  public AuthController(Repos.Users users, SecurityConfig auth, PasswordEncoder passwords) {
+    this.users=users; this.auth=auth; this.passwords=passwords;
   }
 
   public record Credentials(String name, String email, String password) {}
-  public record VerifyRequest(String email, String otp) {}
-  public record EmailRequest(String email) {}
 
   private Map<String,Object> session(User user) {
     return Map.of("token",auth.createToken(user),"user",user);
   }
 
+  // Demo registration: create an account immediately, without sending an email OTP.
+  // This does not verify ownership of the email address.
   @PostMapping("/auth/register")
   public ResponseEntity<Map<String,Object>> register(@RequestBody Credentials body) {
     if(body==null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Invalid registration data");
     String email=EmailVerificationService.normalizeEmail(body.email());
     EmailVerificationService.validateName(body.name());
     EmailVerificationService.validatePassword(body.password());
-    verification.begin(body.name().trim(),email,body.password());
-    return ResponseEntity.accepted().body(Map.of(
-        "email",email, "expiresInSeconds",600, "resendAfterSeconds",60,
-        "message","Mã xác minh đã được gửi. Kiểm tra hộp thư và thư mục Spam."));
-  }
-
-  @PostMapping("/auth/verify-email")
-  public Map<String,Object> verifyEmail(@RequestBody VerifyRequest body) {
-    if(body==null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"OTP required");
-    User user=verification.verify(EmailVerificationService.normalizeEmail(body.email()),body.otp());
-    return session(user);
-  }
-
-  @PostMapping("/auth/resend-otp")
-  public Map<String,String> resendOtp(@RequestBody EmailRequest body) {
-    if(body==null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Email required");
-    verification.resend(EmailVerificationService.normalizeEmail(body.email()));
-    return Map.of("message","Nếu có đăng ký chờ xác minh, mã mới sẽ được gửi đến email.");
+    if(users.findByEmail(email).isPresent())
+      throw new ResponseStatusException(HttpStatus.CONFLICT,"Email đã được sử dụng");
+    User user=new User();
+    user.name=body.name().trim();
+    user.email=email;
+    user.passwordHash=passwords.encode(body.password());
+    user.role="USER";
+    try {
+      User saved=users.saveAndFlush(user);
+      return ResponseEntity.status(HttpStatus.CREATED).body(session(saved));
+    } catch(DataIntegrityViolationException ex) {
+      throw new ResponseStatusException(HttpStatus.CONFLICT,"Email đã được sử dụng");
+    }
   }
 
   @PostMapping("/auth/login")

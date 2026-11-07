@@ -12,8 +12,6 @@ spring:
     open-in-view: false
     hibernate:
       ddl-auto: ${DB_DDL_AUTO:update}
-    properties:
-      hibernate:
   mail:
     host: ${SMTP_HOST:}
     port: ${SMTP_PORT:587}
