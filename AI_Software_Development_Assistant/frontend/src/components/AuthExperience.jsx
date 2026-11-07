@@ -98,7 +98,7 @@ export default function AuthExperience({onAuth, api, initialMode='login'}){
               <div className="dp-auth-rules">{passwordRules.map(([key,label])=><span key={key} className={strength[key]?'valid':''}>{strength[key]?<Check size={13}/>:<span className="dp-auth-rule-dot"/>}{label}</span>)}</div>
             </div>
             <label className="dp-auth-field"><span>XÁC NHẬN MẬT KHẨU</span><div className="dp-auth-input-wrap"><LockKeyhole size={18}/><input required type={showConfirm?'text':'password'} autoComplete="new-password" minLength={10} value={form.confirm} placeholder="Nhập lại mật khẩu" onChange={e=>update('confirm',e.target.value)}/><button type="button" className="dp-auth-eye" aria-label={showConfirm?'Ẩn xác nhận':'Hiện xác nhận'} onClick={()=>setShowConfirm(v=>!v)}>{showConfirm?<EyeOff size={18}/>:<Eye size={18}/>}</button></div>{form.confirm&&<small className={form.password===form.confirm?'dp-auth-ok':'dp-auth-invalid'}>{form.password===form.confirm?'Mật khẩu trùng khớp':'Mật khẩu chưa trùng khớp'}</small>}</label>
-          </>
+          </>}
           {error&&<div className="dp-auth-error" role="alert"><X size={16}/>{error}</div>}
           <button type="submit" className="dp-auth-submit" disabled={busy}>
             {busy?<><LoaderCircle className="dp-auth-spinning" size={19}/> Đang xử lý...</>:<>{mode==='login'?'Đăng nhập vào Workspace':'Tạo tài khoản'}<ArrowRight size={19}/></>}
