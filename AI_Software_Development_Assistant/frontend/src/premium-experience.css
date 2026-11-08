@@ -48,7 +48,7 @@
 }
 #root .app-shell.dp-next .main-content {
   position:relative;max-width:1880px;padding:29px clamp(17px,3vw,54px) 75px;
-  min-width:0;animation:dp-page-in .48s cubic-bezier(.2,.8,.2,1) both;
+  min-width:0;animation:dp-page-opacity-in .48s cubic-bezier(.2,.8,.2,1) both;
 }
 #root .app-shell.dp-next .topbar {
   background:color-mix(in srgb,var(--mc-bg) 87%,transparent);
@@ -399,6 +399,9 @@
 #root .dp-landing .lp-brand-symbol{border-radius:11px;background:linear-gradient(133deg,#6467d9,#78c8d7);color:white}
 
 /* Motion rules: readable in every accessibility setting. */
+/* Avoid transform on .main-content: transformed ancestors turn position:fixed
+   requirement drawers into content-sized overlays instead of viewport overlays. */
+@keyframes dp-page-opacity-in{from{opacity:0}to{opacity:1}}
 @keyframes dp-page-in{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
 @keyframes dp-dialog-enter{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
 @keyframes dp-chat-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
