@@ -2,16 +2,19 @@ server:
   port: ${PORT:8080}
 spring:
   datasource:
-    url: ${DB_URL}
-    username: ${DB_USER}
+    url: ${DB_URL:jdbc:sqlserver://localhost:1433;databaseName=AI_Software_Assistant;encrypt=true;trustServerCertificate=true;sendStringParametersAsUnicode=true}
+    username: ${DB_USER:ai_app}
     password: ${DB_PASSWORD:}
-    driver-class-name: org.postgresql.Driver
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
     hikari:
       connection-timeout: 15000
   jpa:
     open-in-view: false
     hibernate:
       ddl-auto: ${DB_DDL_AUTO:update}
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.SQLServerDialect
   mail:
     host: ${SMTP_HOST:}
     port: ${SMTP_PORT:587}

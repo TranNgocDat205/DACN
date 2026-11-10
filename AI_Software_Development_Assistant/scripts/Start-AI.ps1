@@ -23,7 +23,9 @@ if ($listener) {
 }
 Write-Host 'Starting DevPilot AI Service: http://127.0.0.1:8000' -ForegroundColor Cyan
 $selectedProvider = $env:AI_PROVIDER
-if ($selectedProvider -in @('gemini','google')) {
+if ($selectedProvider -eq 'ollama') {
+    Write-Host ('Local Ollama selected. Chat: ' + $env:OLLAMA_MODEL + '; Embedding: ' + $env:OLLAMA_EMBED_MODEL) -ForegroundColor Cyan
+} elseif ($selectedProvider -in @('gemini','google')) {
     Write-Host ('Gemini selected. Key configured: ' + [bool](-not [string]::IsNullOrWhiteSpace($env:GEMINI_API_KEY))) -ForegroundColor Cyan
 } else {
     Write-Host ('Legacy AI provider selected. Key configured: ' + [bool](-not [string]::IsNullOrWhiteSpace($env:AI_API_KEY))) -ForegroundColor Cyan

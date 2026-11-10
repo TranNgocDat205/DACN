@@ -3,7 +3,6 @@ package com.dacn.assistant.config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -24,7 +23,6 @@ import java.util.Set;
  * Note: rows that were ALREADY saved with '?' cannot be recovered; re-enter them once.
  */
 @Component
-@ConditionalOnProperty(name = "app.sqlserver-unicode-migration-enabled", havingValue = "true")
 @Order(0)
 public class UnicodeColumnMigrator implements ApplicationRunner {
   private static final Logger log = LoggerFactory.getLogger(UnicodeColumnMigrator.class);
