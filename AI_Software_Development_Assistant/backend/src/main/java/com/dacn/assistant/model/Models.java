@@ -13,7 +13,7 @@ public final class Models {
   }
   @Entity @Table(name="app_users", uniqueConstraints=@UniqueConstraint(columnNames="email"))
   public static class User extends Base {
-    @Column(nullable=false, length=120, columnDefinition="nvarchar(120)") public String name;
+    @Column(nullable=false, length=120) public String name;
     @Column(nullable=false,length=200) public String email;
     @JsonIgnore @Column(nullable=false,length=100) public String passwordHash;
     // Account-level role, distinct from OWNER/MEMBER within a project.
@@ -23,7 +23,7 @@ public final class Models {
   @Entity(name="PendingRegistration") @Table(name="pending_registrations", uniqueConstraints=@UniqueConstraint(columnNames="email"))
   public static class PendingRegistration extends Base {
     @Column(nullable=false, length=200) public String email;
-    @Column(nullable=false, length=120, columnDefinition="nvarchar(120)") public String name;
+    @Column(nullable=false, length=120) public String name;
     @JsonIgnore @Column(nullable=false, length=100) public String passwordHash;
     @JsonIgnore @Column(nullable=false, length=100) public String otpHash;
     @Column(nullable=false) public Instant expiresAt;
@@ -33,8 +33,8 @@ public final class Models {
   }
   @Entity @Table(name="projects")
   public static class Project extends Base {
-    @Column(nullable=false, length=160, columnDefinition="nvarchar(160)") public String name;
-    @Column(columnDefinition="nvarchar(max)") public String description = "";
+    @Column(nullable=false, length=160) public String name;
+    @Column(columnDefinition="text") public String description = "";
     @Column(nullable=false) public Long ownerId;
   }
   @Entity @Table(name="project_members",uniqueConstraints=@UniqueConstraint(columnNames={"projectId","userId"}))
@@ -46,34 +46,34 @@ public final class Models {
   @Entity @Table(name="requirements")
   public static class Requirement extends Base {
     @Column(nullable=false) public Long projectId;
-    @Column(nullable=false, length=200, columnDefinition="nvarchar(200)") public String title;
-    @Column(columnDefinition="nvarchar(max)") public String description="";
+    @Column(nullable=false, length=200) public String title;
+    @Column(columnDefinition="text") public String description="";
     @Column(length=20) public String priority="MEDIUM";
     @Column(length=40) public String type="FUNCTIONAL";
     @Column(length=30) public String status="DRAFT";
-    @Column(columnDefinition="nvarchar(max)") public String aiAnalysis;
+    @Column(columnDefinition="text") public String aiAnalysis;
   }
   @Entity @Table(name="user_stories")
   public static class Story extends Base {
     @Column(nullable=false) public Long projectId;
     @Column(nullable=false) public Long requirementId;
-    @Column(nullable=false, length=240, columnDefinition="nvarchar(240)") public String title;
-    @Column(columnDefinition="nvarchar(max)") public String narrative;
+    @Column(nullable=false, length=240) public String title;
+    @Column(columnDefinition="text") public String narrative;
     @Column(length=20) public String priority="MEDIUM";
   }
   @Entity @Table(name="acceptance_criteria")
   public static class Criterion extends Base {
     @Column(nullable=false) public Long projectId;
     @Column(nullable=false) public Long storyId;
-    @Column(columnDefinition="nvarchar(max)") public String givenText;
-    @Column(columnDefinition="nvarchar(max)") public String whenText;
-    @Column(columnDefinition="nvarchar(max)") public String thenText;
+    @Column(columnDefinition="text") public String givenText;
+    @Column(columnDefinition="text") public String whenText;
+    @Column(columnDefinition="text") public String thenText;
   }
   @Entity @Table(name="sprints")
   public static class Sprint extends Base {
     @Column(nullable=false) public Long projectId;
-    @Column(nullable=false, length=180, columnDefinition="nvarchar(180)") public String name;
-    @Column(columnDefinition="nvarchar(max)") public String goal="";
+    @Column(nullable=false, length=180) public String name;
+    @Column(columnDefinition="text") public String goal="";
     @Column(length=25) public String status="PLANNED";
     public String startDate;
     public String endDate;
@@ -84,8 +84,8 @@ public final class Models {
     public Long storyId;
     public Long sprintId;
     public Long assigneeId;
-    @Column(nullable=false, length=230, columnDefinition="nvarchar(230)") public String title;
-    @Column(columnDefinition="nvarchar(max)") public String description="";
+    @Column(nullable=false, length=230) public String title;
+    @Column(columnDefinition="text") public String description="";
     @Column(length=30) public String status="TODO";
     @Column(length=20) public String priority="MEDIUM";
     public String dueDate;
@@ -97,9 +97,9 @@ public final class Models {
     @Column(nullable=false) public Long secondRequirementId;
     @Column(nullable=false,length=32) public String kind;
     @Column(nullable=false,length=16) public String severity="MEDIUM";
-    @Column(columnDefinition="nvarchar(max)") public String explanation="";
-    @Column(columnDefinition="nvarchar(max)") public String suggestion="";
-    @Column(columnDefinition="nvarchar(max)") public String evidence="";
+    @Column(columnDefinition="text") public String explanation="";
+    @Column(columnDefinition="text") public String suggestion="";
+    @Column(columnDefinition="text") public String evidence="";
     @Column(nullable=false,length=16) public String status="OPEN";
     @Column(nullable=false,length=24) public String detectionMode="llm";
     public java.time.Instant reviewedAt;
@@ -109,10 +109,10 @@ public final class Models {
   public static class RequirementVersion extends Base {
     @Column(nullable=false) public Long projectId;
     @Column(nullable=false) public Long requirementId;
-    @Column(columnDefinition="nvarchar(max)") public String oldTitle;
-    @Column(columnDefinition="nvarchar(max)") public String oldDescription;
-    @Column(columnDefinition="nvarchar(max)") public String newTitle;
-    @Column(columnDefinition="nvarchar(max)") public String newDescription;
+    @Column(columnDefinition="text") public String oldTitle;
+    @Column(columnDefinition="text") public String oldDescription;
+    @Column(columnDefinition="text") public String newTitle;
+    @Column(columnDefinition="text") public String newDescription;
     public Long changedBy;
     @Column(length=40) public String source="MANUAL";
   }
@@ -121,9 +121,9 @@ public final class Models {
     @Column(nullable=false) public Long projectId;
     @Column(nullable=false) public Long requirementId;
     @Column(nullable=false,length=64) public String baselineFingerprint;
-    @Column(columnDefinition="nvarchar(max)") public String newTitle;
-    @Column(columnDefinition="nvarchar(max)") public String newDescription;
-    @Column(columnDefinition="nvarchar(max)") public String reportJson;
+    @Column(columnDefinition="text") public String newTitle;
+    @Column(columnDefinition="text") public String newDescription;
+    @Column(columnDefinition="text") public String reportJson;
     @Column(nullable=false,length=20) public String status="PREVIEW";
     public Long createdBy;
     public java.time.Instant appliedAt;
@@ -133,20 +133,20 @@ public final class Models {
     @Column(nullable=false) public Long projectId;
     @Column(nullable=false) public Long criterionId;
     @Column(nullable=false,length=20) public String status="NOT_RUN";
-    @Column(columnDefinition="nvarchar(max)") public String notes="";
+    @Column(columnDefinition="text") public String notes="";
     public Long verifiedBy;
     public java.time.Instant verifiedAt;
   }
   @Entity @Table(name="documents")
   public static class Document extends Base {
     @Column(nullable=false) public Long projectId;
-    @Column(nullable=false, length=255, columnDefinition="nvarchar(255)") public String filename;
+    @Column(nullable=false, length=255) public String filename;
     @Column(nullable=false,length=100) public String externalId;
     public int chunkCount;
     public Long uploadedBy;
     @Column(nullable=false,length=20) public String sourceType="UPLOAD";
-    @Column(length=800,columnDefinition="nvarchar(800)") public String sourceUrl;
-    @Column(length=140,columnDefinition="nvarchar(140)") public String publisher;
+    @Column(length=800) public String sourceUrl;
+    @Column(length=140) public String publisher;
     public java.time.Instant fetchedAt;
   }
 }

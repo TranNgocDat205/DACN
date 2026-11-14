@@ -77,8 +77,7 @@ public class SecurityConfig {
         .accessDeniedHandler((req, res, e) -> res.sendError(403, "Access denied")))
       .authorizeHttpRequests(c -> c
         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-        .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login",
-            "/api/auth/verify-email", "/api/auth/resend-otp").permitAll()
+        .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login").permitAll()
         .requestMatchers(HttpMethod.GET, "/api/health").permitAll()
         .requestMatchers("/error").permitAll()
         .requestMatchers("/api/admin/**").hasRole("ADMIN")
